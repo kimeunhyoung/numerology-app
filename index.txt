@@ -175,8 +175,8 @@
 <script>
 const API = "https://numerology-app-w6rq.onrender.com";
 
-// 핵심: 화면이 다 그려진 후(DOMContentLoaded) 실행되도록 감싸기
-document.addEventListener('DOMContentLoaded', () => {
+// 1. 브라우저가 화면(HTML)을 다 그린 후에 실행되도록 강제 고정
+document.addEventListener('DOMContentLoaded', function() {
     checkAuth();
 });
 
@@ -186,9 +186,11 @@ async function checkAuth() {
     const token = localStorage.getItem("token");
 
     const loginView = document.getElementById('loginView');
+    // querySelector 대신 ID로 확실하게 타겟팅 (HTML에 ID 추가 권장하지만 일단 유지)
     const container = document.querySelector('.container');
 
-    // 요소가 존재할 때만 실행 (안전장치)
+    console.log("CheckAuth 실행됨", { loginView, container }); // 디버깅용
+
     if (loginView && container) {
         if (key || token) {
             container.style.display = 'block';
@@ -218,7 +220,7 @@ async function login() {
             alert("비밀번호가 틀렸습니다.");
         }
     } catch (e) {
-        alert("서버 연결에 실패했습니다.");
+        alert("서버 연결에 실패했습니다. 서버가 실행 중인지 확인하세요.");
     }
 }
 </script>
