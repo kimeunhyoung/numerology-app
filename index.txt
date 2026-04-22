@@ -12,11 +12,6 @@
 
 
 
-<script>
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js');
-}
-</script>
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -180,29 +175,31 @@ if ('serviceWorker' in navigator) {
 <script>
 const API = "https://numerology-app-w6rq.onrender.com";
 
+// 핵심: 화면이 다 그려진 후(DOMContentLoaded) 실행되도록 감싸기
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+});
 
 async function checkAuth() {
     const urlParams = new URLSearchParams(window.location.search);
-    const key = urlParams.get('key'); // 친구용 일회용 키
-    const token = localStorage.getItem("token"); // 은형님용 로그인 토큰
+    const key = urlParams.get('key'); 
+    const token = localStorage.getItem("token");
 
-    // 화면 부품들 가져오기
     const loginView = document.getElementById('loginView');
     const container = document.querySelector('.container');
 
-    // 1. 친구가 QR(key)로 왔거나, 은형님이 이미 로그인(token) 했다면
-    if (key || token) {
-        if (container) container.style.display = 'block'; // 메인 화면 보여주기
-        if (loginView) loginView.style.display = 'none';   // 로그인창 숨기기
-    } 
-    // 2. 둘 다 없다면 (처음 접속한 상태)
-    else {
-        if (container) container.style.display = 'none';  // 메인 화면 숨기기
-        if (loginView) loginView.style.display = 'block'; // 로그인창 보여주기
+    // 요소가 존재할 때만 실행 (안전장치)
+    if (loginView && container) {
+        if (key || token) {
+            container.style.display = 'block';
+            loginView.style.display = 'none';
+        } else {
+            container.style.display = 'none';
+            loginView.style.display = 'block';
+        }
     }
 }
 
-// 로그인 실행 함수
 async function login() {
     const password = document.getElementById("password").value;
     try {
@@ -214,9 +211,9 @@ async function login() {
 
         if (res.ok) {
             const data = await res.json();
-            localStorage.setItem("token", data.token); // 열쇠 저장
+            localStorage.setItem("token", data.token); 
             alert("로그인 성공!");
-            location.reload(); // 이제 화면이 바뀝니다
+            location.reload(); 
         } else {
             alert("비밀번호가 틀렸습니다.");
         }
@@ -224,12 +221,6 @@ async function login() {
         alert("서버 연결에 실패했습니다.");
     }
 }
-
-// 2. 화면 전환 기능 (로그인 성공 시 입력창 숨기기)
-
-
-// 실행
-checkAuth();
 </script>
 
 
@@ -419,11 +410,7 @@ document.getElementById('btnRun').addEventListener('click', function() {
     }
 });
 
-function startAnalysis() {
-    // 기존에 있던 document.getElementById('btnRun').addEventListener('click', function() { 내부 코드를
-    // 이 function startAnalysis() { } 괄호 안에 모두 넣으셔야 합니다.
-    // (이 과정이 복잡하면 아래 설명을 더 봐주세요!)
-}
+
 
 
 const DEEP_MAP = {
@@ -812,14 +799,13 @@ async function downloadPDF() {
 // 서비스 워커 등록 (PWA 필수)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').then(reg => {
+    navigator.serviceWorker.register('/service-worker.js').then(reg => {
       console.log('서비스 워커 등록 성공!', reg);
     }).catch(err => {
       console.log('서비스 워커 등록 실패', err);
     });
   });
 }
-
 
 
 
