@@ -178,45 +178,60 @@ if ('serviceWorker' in navigator) {
 const API = "https://numerology-app-w6rq.onrender.com";
 
 
-async function checkAuth(){
+async function checkAuth() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const key = urlParams.get('key');
     const token = localStorage.getItem("token");
 
-    if(!token){
-        document.getElementById("app").innerHTML = "Access via QR";
+    // 1. 일회용 키로 접속한 경우 (친구용)
+    if (key) {
+        document.querySelector('.container').style.display = 'block';
+        document.getElementById('loginView').style.display = 'none';
         return;
     }
 
-    const res = await fetch(API + "/verify", {
-        headers:{authorization: token}
-    });
-
-    if(!res.ok){
-        localStorage.removeItem("token");
-        location.reload();
-        return;
+    // 2. 이미 로그인 토큰이 있는 경우 (은형님용)
+    if (token) {
+        document.querySelector('.container').style.display = 'block';
+        document.getElementById('loginView').style.display = 'none';
+    } else {
+        // 3. 아무것도 없으면 로그인 화면만 보여줌
+        document.querySelector('.container').style.display = 'none';
+        document.getElementById('loginView').style.display = 'block';
     }
-
-    enterApp();
 }
 
-function enterApp(){
-    document.getElementById("app").innerHTML = `
-        <h1>Welcome 🔐</h1>
-        <button onclick="logout()">Logout</button>
-    `;
+// 로그인 실행 함수
+async function login() {
+    const password = document.getElementById("password").value;
+    try {
+        const res = await fetch(API + "/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem("token", data.token);
+            alert("로그인 성공!");
+            location.reload();
+        } else {
+            alert("비밀번호가 틀렸습니다.");
+        }
+    } catch (e) {
+        alert("서버 연결에 실패했습니다.");
+    }
 }
 
-function logout(){
+// 로그아웃 함수
+function logout() {
     localStorage.removeItem("token");
-    location.reload();
+    location.href = "/";
 }
 
+// 실행
 checkAuth();
-
-// PWA 등록
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js');
-}
 </script>
 
 
