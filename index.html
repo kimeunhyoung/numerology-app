@@ -12,11 +12,6 @@
 
 
 
-<script>
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js');
-}
-</script>
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -419,11 +414,7 @@ document.getElementById('btnRun').addEventListener('click', function() {
     }
 });
 
-function startAnalysis() {
-    // 기존에 있던 document.getElementById('btnRun').addEventListener('click', function() { 내부 코드를
-    // 이 function startAnalysis() { } 괄호 안에 모두 넣으셔야 합니다.
-    // (이 과정이 복잡하면 아래 설명을 더 봐주세요!)
-}
+
 
 
 const DEEP_MAP = {
@@ -812,14 +803,13 @@ async function downloadPDF() {
 // 서비스 워커 등록 (PWA 필수)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').then(reg => {
+    navigator.serviceWorker.register('/service-worker.js').then(reg => {
       console.log('서비스 워커 등록 성공!', reg);
     }).catch(err => {
       console.log('서비스 워커 등록 실패', err);
     });
   });
 }
-
 
 
 
