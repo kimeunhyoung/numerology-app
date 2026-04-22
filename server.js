@@ -23,7 +23,7 @@ app.get("/create-invite", (req, res) => {
     setTimeout(() => oneTimeKeys.delete(inviteKey), 10 * 60 * 1000);
     
     // 친구에게 보여줄 QR용 주소입니다.
-    const inviteLink = `http://localhost:3000?key=${inviteKey}`;
+    const inviteLink = `https://numerology-app-w6rq.onrender.com?key=${inviteKey}`;
     
     res.json({ success: true, inviteLink: inviteLink });
 });

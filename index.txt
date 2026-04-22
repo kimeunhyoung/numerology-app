@@ -175,62 +175,47 @@ if ('serviceWorker' in navigator) {
 <button onclick="login()">Login</button>
 
 <script>
-const API = "http://localhost:3000";
+const API = "https://numerology-app-w6rq.onrender.com";
 
-// 앱 시작 시 자동 로그인 체크
-window.onload = async () => {
+
+async function checkAuth(){
     const token = localStorage.getItem("token");
 
-    if (!token) return;
-
-    const res = await fetch(API + "/verify", {
-        headers: { authorization: token }
-    });
-
-    if (res.ok) {
-        enterApp();
-    } else {
-        localStorage.removeItem("token");
-    }
-};
-
-// 로그인
-async function login() {
-    const password = document.getElementById("password").value;
-
-    const res = await fetch(API + "/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password })
-    });
-
-    if (!res.ok) {
-        alert("Wrong password");
+    if(!token){
+        document.getElementById("app").innerHTML = "Access via QR";
         return;
     }
 
-    const data = await res.json();
-    localStorage.setItem("token", data.token);
+    const res = await fetch(API + "/verify", {
+        headers:{authorization: token}
+    });
+
+    if(!res.ok){
+        localStorage.removeItem("token");
+        location.reload();
+        return;
+    }
 
     enterApp();
 }
 
-// 앱 진입
-function enterApp() {
-    // 1. 로그인 창을 숨깁니다.
-    document.getElementById("password").style.display = "none";
-    document.querySelector("h2").style.display = "none";
-    document.querySelector("button[onclick='login()']").style.display = "none";
-
-    // 2. 진짜 앱 컨테이너를 보여줍니다.
-    const app = document.getElementById("mainApp") || document.querySelector(".container");
-    if(app) app.style.display = "block";
+function enterApp(){
+    document.getElementById("app").innerHTML = `
+        <h1>Welcome 🔐</h1>
+        <button onclick="logout()">Logout</button>
+    `;
 }
 
-// 로그아웃
-function logout() {
+function logout(){
     localStorage.removeItem("token");
     location.reload();
+}
+
+checkAuth();
+
+// PWA 등록
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js');
 }
 </script>
 
