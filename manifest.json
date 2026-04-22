@@ -1,0 +1,8 @@
+{
+  "name": "Private App",
+  "short_name": "App",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111",
+  "theme_color": "#111"
+}
