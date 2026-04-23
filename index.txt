@@ -268,8 +268,8 @@ async function login() {
 <div class="container">
     <div class="header" style="position: relative; text-align: center; margin-bottom: 30px; padding: 10px 0;">
         <div style="display: inline-block;">
-            <h1 style="margin: 0; font-size: 1.6rem; letter-spacing: 2px; color: #fff;">라이프코드 (Life Code)</h1>
- <h1 style="margin: 0; font-size: 1.6rem; letter-spacing: 2px; color: #fff;">✦</h1>
+            <h1 style="margin: 0; font-size: 1.4rem; letter-spacing: 2px; color: #fff;">✦ 라이프코드 (Life Code) ✦</h1>
+ 
             <p style="margin: 6px 0 0; font-size: 0.85rem; color: var(--muted);">숫자로 읽는 나의 본질과 인생 타임라인</p>
         </div>
         
