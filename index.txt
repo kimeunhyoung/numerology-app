@@ -185,7 +185,9 @@
 
 <div id="loginView">
     <h2 style="color: #fff;">관리자 로그인</h2>
-    <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 20px;">액세스 코드를 입력하세요.<br>
+  <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 20px;">액세스 코드를 입력하세요.<br>
+    <p style="color: var(--muted); font-size: 1rem; margin-bottom: 20px;"><b>상단의 라이프코드앱 저장하기 클릭하세요</b><br>
+<b>상단의 버튼이 보이지 않을경우<br>
 <b>안드로이드:</b> 브라우저 우측 상단 [⋮] → [앱 설치]<br>
 <b>아이폰:</b> 하단 [공유 아이콘] → [홈 화면에 추가]</p>
 
