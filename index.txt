@@ -147,17 +147,35 @@
         .insight-box strong { color: var(--teal); }
 
 #downloadPdfBtn {
-    transition: all 0.3s ease;
-    display: flex;
+    position: fixed;
+    bottom: 30px;
+    right: 25px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a366ff, #9d50bb); /* 화려한 보라색 그라데이션 */
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(163, 102, 255, 0.4);
+    cursor: pointer;
+    z-index: 9999; /* 화면 최상단 */
+    display: none; /* 분석 결과가 나올 때만 보이게 설정 */
+    flex-direction: column;
     align-items: center;
-    gap: 5px;
-    height: fit-content;
+    justify-content: center;
+    line-height: 1.2;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 #downloadPdfBtn:hover {
-    background: var(--accent) !important;
-    color: white !important;
-    transform: translateY(-2px);
+    transform: scale(1.1);
+    background: #a366ff;
+}
+
+#downloadPdfBtn span {
+    font-size: 0.6rem;
+    font-weight: bold;
+    display: block;
 }
 
 
