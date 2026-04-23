@@ -146,7 +146,7 @@
         .insight-box { margin-top: 18px; padding: 16px 18px; background: rgba(46,213,115,0.05); border: 1px solid rgba(46,213,115,0.2); border-radius: 12px; font-size: 0.87rem; line-height: 1.7; color: var(--text); }
         .insight-box strong { color: var(--teal); }
 
-#downloadPdfBtn {
+#finalDownloadBtn {
     position: fixed;
     bottom: 30px;
     right: 25px;
@@ -167,12 +167,12 @@
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-#downloadPdfBtn:hover {
+#finalDownloadBtn:hover {
     transform: scale(1.1);
     background: #a366ff;
 }
 
-#downloadPdfBtn span {
+#finalDownloadBtn span {
     font-size: 0.6rem;
     font-weight: bold;
     display: block;
@@ -226,12 +226,11 @@ async function checkAuth() {
                 headers: { "Authorization": `Bearer ${token}` }
             });
 
-            if (!res.ok) {
-                // [킬 스위치] 비번이 바뀌어 서버가 거절하면 즉시 차단!
-                alert("보안 정책(비밀번호 등)이 변경되었습니다. 다시 로그인하세요.");
-                storage.removeItem("token");
-                location.reload(); 
-            }
+            if (res.status === 401) { // 401 에러(인증 실패)일 때만 로그아웃
+    alert("보안 정책(비밀번호 등)이 변경되었습니다. 다시 로그인하세요.");
+    storage.removeItem("token");
+    location.reload(); 
+}
         } catch (e) {
             console.log("서버 응답 없음, 현재 세션 유지");
         }
@@ -415,7 +414,12 @@ async function login() {
 </div>
 
 <script>
-const ADMIN_MASTER_PASSWORD = "code7777"; 
+
+
+
+
+
+
 
 const TITLE_MAP = { 1:"자립과 개척의 시기",2:"협력과 조화의 시기",3:"표현과 창조의 시기",4:"안정과 내실의 시기",5:"변화와 탐험의 시기",6:"책임과 사랑의 시기",7:"성찰과 지혜의 시기",8:"성취와 권위의 시기",9:"완성과 자비의 시기",11:"직관과 영감의 시기",22:"원대한 건설의 시기",33:"우주적 치유와 봉사의 시기" };
 
@@ -429,27 +433,18 @@ const TL_DESC = { 1:"독립과 새 출발. 주도적으로 움직이세요.",2:"
 
 // 버튼 클릭 이벤트 리스너 (보안 체크)
 document.getElementById('btnRun').addEventListener('click', function() {
-    const isVerified = localStorage.getItem('isUserVerified');
-    const savedPassword = localStorage.getItem('lastUsedPassword');
-
-    // 이미 인증되었고 비번이 같으면 바로 실행
-    if (isVerified === 'true' && savedPassword === ADMIN_MASTER_PASSWORD) {
-        startAnalysis(); 
-        return;
-    }
-
-    // 처음이거나 비번이 다를 때만 물어봄
-    const userPass = prompt("액세스 코드를 입력하세요.");
-
-    if (userPass === ADMIN_MASTER_PASSWORD) {
-        localStorage.setItem('isUserVerified', 'true');
-        localStorage.setItem('lastUsedPassword', ADMIN_MASTER_PASSWORD);
-        alert("인증되었습니다.");
+    const token = storage.getItem("token");
+    if (token) {
         startAnalysis();
-    } else if (userPass !== null) {
-        alert("잘못된 코드입니다.");
+    } else {
+        alert("로그인이 필요합니다.");
+        document.querySelector('.container').style.display = 'none';
+        document.getElementById('loginView').style.display = 'block';
     }
 });
+
+
+
 
 
 
@@ -818,7 +813,7 @@ async function downloadPDF() {
     }
 
     const { jsPDF } = window.jspdf;
-    const btn = document.getElementById('downloadPdfBtn');
+    const btn = document.getElementById('finalDownloadBtn');
     btn.style.display = 'none'; // 버튼 숨기기
 
     // 캡처할 대상 (컨테이너 전체)
@@ -854,14 +849,14 @@ async function downloadPDF() {
         console.error('PDF 생성 실패:', error);
         alert('PDF 생성 중 오류가 발생했습니다.');
     } finally {
-        btn.style.display = 'block';
+        btn.style.display = 'flex';
     }
 }
 
 // 서비스 워커 등록 (PWA 필수)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').then(reg => {
+    navigator.serviceWorker.register('./service-worker.js').then(reg => {
       console.log('서비스 워커 등록 성공!', reg);
     }).catch(err => {
       console.log('서비스 워커 등록 실패', err);

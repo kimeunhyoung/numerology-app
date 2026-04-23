@@ -146,7 +146,7 @@
         .insight-box { margin-top: 18px; padding: 16px 18px; background: rgba(46,213,115,0.05); border: 1px solid rgba(46,213,115,0.2); border-radius: 12px; font-size: 0.87rem; line-height: 1.7; color: var(--text); }
         .insight-box strong { color: var(--teal); }
 
-#downloadPdfBtn {
+#finalDownloadBtn {
     position: fixed;
     bottom: 30px;
     right: 25px;
@@ -167,12 +167,12 @@
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-#downloadPdfBtn:hover {
+#finalDownloadBtn:hover {
     transform: scale(1.1);
     background: #a366ff;
 }
 
-#downloadPdfBtn span {
+#finalDownloadBtn span {
     font-size: 0.6rem;
     font-weight: bold;
     display: block;
@@ -185,7 +185,10 @@
 
 <div id="loginView">
     <h2 style="color: #fff;">관리자 로그인</h2>
-    <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 20px;">액세스 코드를 입력하세요</p>
+    <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 20px;">액세스 코드를 입력하세요.<br>
+<b>안드로이드:</b> 브라우저 우측 상단 [⋮] → [앱 설치]<br>
+<b>아이폰:</b> 하단 [공유 아이콘] → [홈 화면에 추가]</p>
+
     <input type="password" id="password" class="login-input" placeholder="비밀번호 입력">
     <button onclick="login()" style="width: 100%;">로그인</button>
 </div>
@@ -193,29 +196,43 @@
 <script>
 const API = "https://numerology-app-w6rq.onrender.com";
 
-// 1. 브라우저가 화면(HTML)을 다 그린 후에 실행되도록 강제 고정
-document.addEventListener('DOMContentLoaded', function() {
-    checkAuth();
-});
+// PWA(홈 화면 추가) 앱인지 일반 웹인지 판별하여 저장소 결정
+const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+const storage = isPWA ? localStorage : sessionStorage;
+
+document.addEventListener('DOMContentLoaded', checkAuth);
 
 async function checkAuth() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const key = urlParams.get('key'); 
-    const token = localStorage.getItem("token");
-
+    const token = storage.getItem("token");
     const loginView = document.getElementById('loginView');
-    // querySelector 대신 ID로 확실하게 타겟팅 (HTML에 ID 추가 권장하지만 일단 유지)
     const container = document.querySelector('.container');
 
-    console.log("CheckAuth 실행됨", { loginView, container }); // 디버깅용
+    // 1. 토큰 없으면 무조건 로그인 화면
+    if (!token) {
+        loginView.style.display = 'block';
+        container.style.display = 'none';
+        return;
+    }
 
-    if (loginView && container) {
-        if (key || token) {
-            container.style.display = 'block';
-            loginView.style.display = 'none';
-        } else {
-            container.style.display = 'none';
-            loginView.style.display = 'block';
+    // 2. 앱(PWA)이라면 일단 메인 화면부터 띄워줌 (상담 편의성)
+    loginView.style.display = 'none';
+    container.style.display = 'block';
+
+    // 3. 인터넷이 연결되어 있으면 실시간으로 비번 변경 여부 감시
+    if (navigator.onLine) {
+        try {
+            const res = await fetch(API + "/check-auth", {
+                method: "GET",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (res.status === 401) { // 401 에러(인증 실패)일 때만 로그아웃
+    alert("보안 정책(비밀번호 등)이 변경되었습니다. 다시 로그인하세요.");
+    storage.removeItem("token");
+    location.reload(); 
+}
+        } catch (e) {
+            console.log("서버 응답 없음, 현재 세션 유지");
         }
     }
 }
@@ -231,14 +248,15 @@ async function login() {
 
         if (res.ok) {
             const data = await res.json();
-            localStorage.setItem("token", data.token); 
-            alert("로그인 성공!");
+            // 성공 시 토큰 저장 (storage가 알아서 앱은 영구히, 웹은 임시로 저장함)
+            storage.setItem("token", data.token); 
+            alert("인증 성공!");
             location.reload(); 
         } else {
             alert("비밀번호가 틀렸습니다.");
         }
     } catch (e) {
-        alert("서버 연결에 실패했습니다. 서버가 실행 중인지 확인하세요.");
+        alert("서버 연결 실패. 인터넷을 확인하세요.");
     }
 }
 </script>
@@ -256,13 +274,15 @@ async function login() {
             <p style="margin: 6px 0 0; font-size: 0.85rem; color: var(--muted);">숫자로 읽는 나의 본질과 인생 타임라인</p>
         </div>
         
-        <button id="downloadPdfBtn" onclick="downloadPDF()" 
-                style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-                       width: auto; padding: 6px 10px; font-size: 0.7rem; background: rgba(163, 102, 255, 0.1); 
-                       border: 1px solid var(--accent); color: var(--accent); border-radius: 6px; 
-                       white-space: nowrap; cursor: pointer; transition: 0.3s;">
-            📥 리포트 저장
-        </button>
+        <button id="finalDownloadBtn" onclick="downloadPDF()" 
+        style="position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; 
+               border-radius: 50%; background: linear-gradient(135deg, #a366ff, #9d50bb); 
+               color: white; border: none; box-shadow: 0 4px 15px rgba(163, 102, 255, 0.4); 
+               cursor: pointer; z-index: 9999; display: none; flex-direction: column; 
+               align-items: center; justify-content: center; line-height: 1.2; padding: 0;">
+    <span style="font-size: 1.2rem;">💾</span>
+    <span style="font-size: 0.6rem; font-weight: bold;">리포트 저장</span>
+</button>
     </div>
 
     <div class="input-box">
@@ -313,7 +333,7 @@ async function login() {
         <div id="cycleArea"></div>
 
         <!-- ── 개선: 개운법 → Growth Map ── -->
-        <div class="section-title" style="margin-top:40px;">💎 선천 성향 & 후천 보완 역량 진단 (Growth Map)</div>
+        <div class="section-title" style="margin-top:40px;">📍 선천 성향 & 후천 보완 역량 진단 (Growth Map)</div>
         <div class="accordion" style="margin-bottom:25px;">
             <div class="accordion-header">
                 <h4>✦ 선천 미개발 역량 & 이름 보완 분석</h4>
@@ -394,7 +414,12 @@ async function login() {
 </div>
 
 <script>
-const ADMIN_MASTER_PASSWORD = "code7777"; 
+
+
+
+
+
+
 
 const TITLE_MAP = { 1:"자립과 개척의 시기",2:"협력과 조화의 시기",3:"표현과 창조의 시기",4:"안정과 내실의 시기",5:"변화와 탐험의 시기",6:"책임과 사랑의 시기",7:"성찰과 지혜의 시기",8:"성취와 권위의 시기",9:"완성과 자비의 시기",11:"직관과 영감의 시기",22:"원대한 건설의 시기",33:"우주적 치유와 봉사의 시기" };
 
@@ -408,27 +433,18 @@ const TL_DESC = { 1:"독립과 새 출발. 주도적으로 움직이세요.",2:"
 
 // 버튼 클릭 이벤트 리스너 (보안 체크)
 document.getElementById('btnRun').addEventListener('click', function() {
-    const isVerified = localStorage.getItem('isUserVerified');
-    const savedPassword = localStorage.getItem('lastUsedPassword');
-
-    // 이미 인증되었고 비번이 같으면 바로 실행
-    if (isVerified === 'true' && savedPassword === ADMIN_MASTER_PASSWORD) {
-        startAnalysis(); 
-        return;
-    }
-
-    // 처음이거나 비번이 다를 때만 물어봄
-    const userPass = prompt("액세스 코드를 입력하세요.");
-
-    if (userPass === ADMIN_MASTER_PASSWORD) {
-        localStorage.setItem('isUserVerified', 'true');
-        localStorage.setItem('lastUsedPassword', ADMIN_MASTER_PASSWORD);
-        alert("인증되었습니다.");
+    const token = storage.getItem("token");
+    if (token) {
         startAnalysis();
-    } else if (userPass !== null) {
-        alert("잘못된 코드입니다.");
+    } else {
+        alert("로그인이 필요합니다.");
+        document.querySelector('.container').style.display = 'none';
+        document.getElementById('loginView').style.display = 'block';
     }
 });
+
+
+
 
 
 
@@ -462,27 +478,27 @@ const DEEP_MAP = {
 
 
 const MOON_MAP = {
-    1: "<b>[독립적 욕구] 감정의 자생력</b><br><span class='kw'>#자기신뢰 #독립 #고립방어</span><br>누구에게도 의지하지 않고 스스로를 책임지려 하는 무의식적 본능이 강합니다. 혼자만의 결정권이 보장될 때 정서적 안정감을 느끼며, 타인의 간섭을 과도한 통제로 인식할 수 있습니다. 스스로를 믿는 힘이 곧 감정의 에너지원입니다.",
+    1: "<b>[독립적 욕구] 감정의 자생력</b><br><span class='kw'>[자기신뢰 / 독립  고립방어]</span><br>누구에게도 의지하지 않고 스스로를 책임지려 하는 무의식적 본능이 강합니다. 혼자만의 결정권이 보장될 때 정서적 안정감을 느끼며, 타인의 간섭을 과도한 통제로 인식할 수 있습니다. 스스로를 믿는 힘이 곧 감정의 에너지원입니다.",
 
-    2: "<b>[공감적 본능] 정서적 유대와 연결</b><br><span class='kw'>#친밀함 #반응성 #거절공포</span><br>타인과 마음이 연결되어 있다는 느낌을 받을 때 비로소 안심하는 유형입니다. 주변의 분위기를 예민하게 감지하며, 갈등 상황에서 극심한 피로를 느낍니다. 누군가에게 필요한 존재가 되는 것이 가장 큰 정서적 보상입니다.",
+    2: "<b>[공감적 본능] 정서적 유대와 연결</b><br><span class='kw'>[친밀함 / 반응성 / 거절공포]</span><br>타인과 마음이 연결되어 있다는 느낌을 받을 때 비로소 안심하는 유형입니다. 주변의 분위기를 예민하게 감지하며, 갈등 상황에서 극심한 피로를 느낍니다. 누군가에게 필요한 존재가 되는 것이 가장 큰 정서적 보상입니다.",
 
-    3: "<b>[표현의 갈망] 감정의 가시화</b><br><span class='kw'>#즐거움 #자기표현 #비난민감</span><br>자신의 감정을 밖으로 표출하고 인정받고 싶어 하는 아이 같은 순수함이 내면에 자리 잡고 있습니다. 유머와 대화를 통해 스트레스를 해소하며, 자신의 창의성이 무시당할 때 가장 큰 상처를 입습니다. 즐거움이 곧 삶의 동력입니다.",
+    3: "<b>[표현의 갈망] 감정의 가시화</b><br><span class='kw'>[즐거움 / 자기표현 / 비난민감]</span><br>자신의 감정을 밖으로 표출하고 인정받고 싶어 하는 아이 같은 순수함이 내면에 자리 잡고 있습니다. 유머와 대화를 통해 스트레스를 해소하며, 자신의 창의성이 무시당할 때 가장 큰 상처를 입습니다. 즐거움이 곧 삶의 동력입니다.",
 
-    4: "<b>[안정의 욕구] 심리적 방어벽</b><br><span class='kw'>#예측가능성 #질서 #변화불안</span><br>주변 상황이 질서 정연하고 예측 가능할 때 평온함을 느낍니다. 감정을 겉으로 드러내기보다 내면에 쌓아두는 편이며, 갑작스러운 변화나 불확실한 상황에서 큰 불안을 느낍니다. 견고한 루틴이 당신의 마음을 지켜주는 갑옷입니다.",
+    4: "<b>[안정의 욕구] 심리적 방어벽</b><br><span class='kw'>[예측가능성 / 질서 / 변화불안]</span><br>주변 상황이 질서 정연하고 예측 가능할 때 평온함을 느낍니다. 감정을 겉으로 드러내기보다 내면에 쌓아두는 편이며, 갑작스러운 변화나 불확실한 상황에서 큰 불안을 느낍니다. 견고한 루틴이 당신의 마음을 지켜주는 갑옷입니다.",
 
-    5: "<b>[자유의 본능] 정서적 해방감</b><br><span class='kw'>#다양성 #모험 #구속혐오</span><br>반복되는 일상에서 답답함을 느끼며, 끊임없이 새로운 자극을 통해 살아있음을 확인합니다. 감정의 기복이 역동적이며, 한곳에 얽매이지 않는 자유로운 상태일 때 창의적인 에너지가 샘솟습니다. 변화 그 자체가 당신에게는 휴식입니다.",
+    5: "<b>[자유의 본능] 정서적 해방감</b><br><span class='kw'>[다양성 / 모험 / 구속혐오]</span><br>반복되는 일상에서 답답함을 느끼며, 끊임없이 새로운 자극을 통해 살아있음을 확인합니다. 감정의 기복이 역동적이며, 한곳에 얽매이지 않는 자유로운 상태일 때 창의적인 에너지가 샘솟습니다. 변화 그 자체가 당신에게는 휴식입니다.",
 
-    6: "<b>[보살핌의 의무] 이타적 정서</b><br><span class='kw'>#헌신 #완벽주의 #간섭주의</span><br>가까운 사람들을 돌보고 책임질 때 내면의 충만함을 얻습니다. 조화롭지 못한 환경을 참지 못하며, 사랑하는 사람들의 문제를 자신의 것처럼 고민합니다. 다만, 타인을 돌보느라 정작 자신의 결핍을 외면하지 않도록 주의해야 합니다.",
+    6: "<b>[보살핌의 의무] 이타적 정서</b><br><span class='kw'>[헌신 / 완벽주의 / 간섭주의]</span><br>가까운 사람들을 돌보고 책임질 때 내면의 충만함을 얻습니다. 조화롭지 못한 환경을 참지 못하며, 사랑하는 사람들의 문제를 자신의 것처럼 고민합니다. 다만, 타인을 돌보느라 정작 자신의 결핍을 외면하지 않도록 주의해야 합니다.",
 
-    7: "<b>[사색의 본능] 고독의 힘</b><br><span class='kw'>#비밀유지 #통찰 #냉소주의</span><br>복잡한 세상에서 한발 물러나 혼자만의 동굴로 들어갈 때 에너지가 회복됩니다. 감정적인 수다보다는 침묵 속의 깊은 통찰을 선호하며, 자신의 사적인 영역이 침범당하는 것을 극도로 경계합니다. 고독은 외로움이 아니라 당신의 지혜가 자라는 시간입니다.",
+    7: "<b>[사색의 본능] 고독의 힘</b><br><span class='kw'>[비밀유지 / 통찰 / 냉소주의]</span><br>복잡한 세상에서 한발 물러나 혼자만의 동굴로 들어갈 때 에너지가 회복됩니다. 감정적인 수다보다는 침묵 속의 깊은 통찰을 선호하며, 자신의 사적인 영역이 침범당하는 것을 극도로 경계합니다. 고독은 외로움이 아니라 당신의 지혜가 자라는 시간입니다.",
 
-    8: "<b>[성취의 욕망] 현실적 통제권</b><br><span class='kw'>#권위 #유능함 #약점노출기피</span><br>자신의 삶을 스스로 통제하고 주도하고 있다는 확신이 있을 때 안정감을 느낍니다. 감정적인 나약함을 보이는 것을 꺼리며, 실질적인 성과나 물질적 풍요를 통해 자신의 가치를 확인받으려 합니다. 유능함이 당신의 자존감을 지탱하는 기둥입니다.",
+    8: "<b>[성취의 욕망] 현실적 통제권</b><br><span class='kw'>[권위 / 유능함 / 약점노출기피]</span><br>자신의 삶을 스스로 통제하고 주도하고 있다는 확신이 있을 때 안정감을 느낍니다. 감정적인 나약함을 보이는 것을 꺼리며, 실질적인 성과나 물질적 풍요를 통해 자신의 가치를 확인받으려 합니다. 유능함이 당신의 자존감을 지탱하는 기둥입니다.",
 
-    9: "<b>[초월적 감성] 인류애적 공감</b><br><span class='kw'>#관용 #미련 #이상주의</span><br>개인적인 감정을 넘어 세상의 아픔에 공감하는 넓은 마음을 지니고 있습니다. 과거의 인연이나 상처를 쉽게 놓지 못하는 미련이 있을 수 있지만, 비워내고 용서할 때 가장 강력한 정서적 해방감을 맛봅니다. 당신의 마음은 모두를 품는 바다와 같습니다.",
+    9: "<b>[초월적 감성] 인류애적 공감</b><br><span class='kw'>[관용 / 미련 / 이상주의]</span><br>개인적인 감정을 넘어 세상의 아픔에 공감하는 넓은 마음을 지니고 있습니다. 과거의 인연이나 상처를 쉽게 놓지 못하는 미련이 있을 수 있지만, 비워내고 용서할 때 가장 강력한 정서적 해방감을 맛봅니다. 당신의 마음은 모두를 품는 바다와 같습니다.",
 
-    11: "<b>[예민한 직관] 영적 민감성</b><br><span class='kw'>#영감 #신경과민 #특별함</span><br>타인이 느끼지 못하는 미세한 에너지의 흐름을 읽어내는 탁월한 직관력을 지녔습니다. 이로 인해 주변 환경에 쉽게 피로해지고 신경이 날카로워질 수 있습니다. 현실의 소음에서 벗어나 영적인 연결감을 느낄 때 진정한 평화가 찾아옵니다.",
+    11: "<b>[예민한 직관] 영적 민감성</b><br><span class='kw'>[영감 / 신경과민 / 특별함]</span><br>타인이 느끼지 못하는 미세한 에너지의 흐름을 읽어내는 탁월한 직관력을 지녔습니다. 이로 인해 주변 환경에 쉽게 피로해지고 신경이 날카로워질 수 있습니다. 현실의 소음에서 벗어나 영적인 연결감을 느낄 때 진정한 평화가 찾아옵니다.",
 
-    22: "<b>[거대한 책임] 이상의 구현 본능</b><br><span class='kw'>#마스터플랜 #압박감 #공익</span><br>개인의 안위보다 더 큰 가치를 실현해야 한다는 무의식적 사명감에 시달리기 쉽습니다. 현실을 바꾸고 싶은 거대한 욕구가 내면에서 요동치며, 이를 구체적인 결과물로 만들지 못할 때 큰 좌절을 느낍니다. 당신의 마음은 세상을 담는 설계도입니다."
+    22: "<b>[거대한 책임] 이상의 구현 본능</b><br><span class='kw'>[마스터플랜 / 압박감 / 공익]</span><br>개인의 안위보다 더 큰 가치를 실현해야 한다는 무의식적 사명감에 시달리기 쉽습니다. 현실을 바꾸고 싶은 거대한 욕구가 내면에서 요동치며, 이를 구체적인 결과물로 만들지 못할 때 큰 좌절을 느낍니다. 당신의 마음은 세상을 담는 설계도입니다."
 };
 
 
@@ -624,7 +640,26 @@ function startAnalysis() {
     document.getElementById('v-mt').innerText=mt;
     document.getElementById('v-mn').innerText=`${mn}(${mnS})`;
 
-    document.getElementById('coreDescArea').innerHTML=[{k:"인생여정수",v:lp},{k:"운명수",v:dt},{k:"혼의 수",v:su},{k:"성격수",v:ps},{k:"완성수",v:mt},{k:"문 넘버",v:mn}].map(i=>`<div class="accordion"><div class="accordion-header"><h4>✦ ${i.k} ${i.v}번 분석</h4></div><div class="accordion-content"><span class="q-text">Q. ${QUESTIONS[i.k]}</span><div class="desc-content">${DEEP_MAP[i.v]||""}</div></div></div>`).join('');
+   document.getElementById('coreDescArea').innerHTML = [
+        {k:"인생여정수", v:lp},
+        {k:"운명수", v:dt},
+        {k:"혼의 수", v:su},
+        {k:"성격수", v:ps},
+        {k:"완성수", v:mt},
+        {k:"문 넘버", v:mn}
+    ].map(i => {
+        // 문 넘버일 경우 전용 맵인 MOON_MAP에서 데이터를 가져오고, 나머지는 DEEP_MAP 사용
+        const desc = (i.k === "문 넘버") ? (MOON_MAP[i.v] || "") : (DEEP_MAP[i.v] || "");
+        
+        return `
+            <div class="accordion">
+                <div class="accordion-header"><h4>✦ ${i.k} ${i.v}번 분석</h4></div>
+                <div class="accordion-content">
+                    <span class="q-text">Q. ${QUESTIONS[i.k]}</span>
+                    <div class="desc-content">${desc}</div>
+                </div>
+            </div>`;
+    }).join('');
 
     const now=new Date(); const curY=now.getFullYear(), curM=now.getMonth()+1, curD=now.getDate();
     const curY_r=reduceToSingle(String(curY).split('').reduce((a,b)=>Number(a)+Number(b),0),true);
@@ -750,7 +785,7 @@ finalHtml += `
     if(monthlyGrid){monthlyGrid.innerHTML="";const mKeywords={1:"시작",2:"협력",3:"확장",4:"안정",5:"변화",6:"조화",7:"성찰",8:"성취",9:"정리",11:"영감",22:"건설"};for(let mo=1;mo<=12;mo++){let pm2=reduceToSingle(py+mo,true);let isCurrentMonth=(mo===curM);let kw=mKeywords[pm2]||(mKeywords[(pm2%9===0)?9:pm2%9]||"흐름");monthlyGrid.innerHTML+=`<div class="card" style="padding:10px 2px;${isCurrentMonth?'border:1px solid var(--teal);background:rgba(20,184,166,0.1);':'border:1px solid #222;'}"><span style="font-size:0.65rem;color:${isCurrentMonth?'var(--teal)':'var(--muted)'}">${mo}월</span><strong style="font-size:1.1rem;display:block;margin:2px 0;color:var(--accent);">${pm2}</strong><span style="font-size:0.6rem;color:#ccc;">${kw}</span></div>`;}}
 
     // ── 7일 캘린더 ──
-    const DAY_ADVICE={1:{status:"🚀 시작",desc:"새로운 계획 실행에 좋은 날입니다."},2:{status:"🤝 조율",desc:"경청하고 협력하세요. 계약에 유리합니다."},3:{status:"🎨 확장",desc:"창의성이 빛나는 날. 표현에 적극적이 되세요."},4:{status:"🚧 내실",desc:"점검이 필요한 날. 성급한 결정은 금물입니다."},5:{status:"✈️ 변화",desc:"새로운 만남이 행운을 줍니다."},6:{status:"🏠 조화",desc:"가족과 지인을 돌보기 좋은 날입니다."},7:{status:"🧘 성찰",desc:"명상과 공부에 아주 좋은 날입니다."},8:{status:"💰 성취",desc:"결실의 날. 비즈니스와 금전운이 상승합니다."},9:{status:"🧹 정리",desc:"과거를 매듭짓고 비우는 날입니다."},11:{status:"⚡ 직관",desc:"예감이 적중하니 직관을 믿으세요."},22:{status:"🏗️ 대업",desc:"장기적인 계획을 세우기 좋습니다."}};
+    const DAY_ADVICE={1:{status:"시작",desc:"새로운 계획 실행에 좋은 날입니다."},2:{status:"조율",desc:"경청하고 협력하세요. 계약에 유리합니다."},3:{status:"확장",desc:"창의성이 빛나는 날. 표현에 적극적이 되세요."},4:{status:"내실",desc:"점검이 필요한 날. 성급한 결정은 금물입니다."},5:{status:"변화",desc:"새로운 만남이 행운을 줍니다."},6:{status:"조화",desc:"가족과 지인을 돌보기 좋은 날입니다."},7:{status:"성찰",desc:"명상과 공부에 아주 좋은 날입니다."},8:{status:"성취",desc:"결실의 날. 비즈니스와 금전운이 상승합니다."},9:{status:"정리",desc:"과거를 매듭짓고 비우는 날입니다."},11:{status:"직관",desc:"예감이 적중하니 직관을 믿으세요."},22:{status:"대업",desc:"장기적인 계획을 세우기 좋습니다."}};
     const weeklyTableBody=document.getElementById('weeklyTableBody');
     if(weeklyTableBody){weeklyTableBody.innerHTML="";for(let i=0;i<7;i++){let td=new Date();td.setDate(now.getDate()+i);let tM=td.getMonth()+1,tD=td.getDate();let tPm=reduceToSingle(py+tM);let tPd=reduceToSingle(tPm+tD,true);let adv=DAY_ADVICE[tPd]||{status:"평온",desc:"차분하게 에너지를 비축하세요."};let ss="";if(tPd===4||tPd===9)ss="color:var(--red);font-weight:bold;";if(tPd===1||tPd===8)ss="color:var(--gold);font-weight:bold;";if(tPd===11||tPd===22)ss="color:var(--accent);font-weight:bold;";weeklyTableBody.innerHTML+=`<tr><td style="font-size:0.85rem;">${tM}/${tD}</td><td class="p-num" style="font-size:1rem;color:var(--gold);">${tPd}</td><td style="${ss}">${adv.status}</td><td style="text-align:left;font-size:0.85rem;line-height:1.4;">${adv.desc}</td></tr>`;}}
 
@@ -764,6 +799,8 @@ finalHtml += `
     document.getElementById('specialComment').innerText=generateComboComment(lp,py);
 
     document.getElementById('resultView').style.display='block';
+document.getElementById('finalDownloadBtn').style.display = 'flex';
+
     initAccordion();
 }
 
@@ -776,7 +813,7 @@ async function downloadPDF() {
     }
 
     const { jsPDF } = window.jspdf;
-    const btn = document.getElementById('downloadPdfBtn');
+    const btn = document.getElementById('finalDownloadBtn');
     btn.style.display = 'none'; // 버튼 숨기기
 
     // 캡처할 대상 (컨테이너 전체)
@@ -812,14 +849,14 @@ async function downloadPDF() {
         console.error('PDF 생성 실패:', error);
         alert('PDF 생성 중 오류가 발생했습니다.');
     } finally {
-        btn.style.display = 'block';
+        btn.style.display = 'flex';
     }
 }
 
 // 서비스 워커 등록 (PWA 필수)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').then(reg => {
+    navigator.serviceWorker.register('./service-worker.js').then(reg => {
       console.log('서비스 워커 등록 성공!', reg);
     }).catch(err => {
       console.log('서비스 워커 등록 실패', err);
@@ -827,6 +864,21 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const installBanner = document.createElement('div');
+    installBanner.style = "position:fixed; top:0; left:0; width:100%; background:var(--accent); color:white; padding:15px; text-align:center; z-index:10000; cursor:pointer; font-weight:bold;";
+    installBanner.innerHTML = "✨ 편리한 이용을 위해 '라이프코드 앱'으로 저장하기 (클릭)";
+    document.body.appendChild(installBanner);
+    installBanner.addEventListener('click', () => {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            installBanner.remove();
+        });
+    });
+});
 
 
 </script>
