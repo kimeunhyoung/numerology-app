@@ -277,7 +277,8 @@ async function login() {
 <div class="container">
     <div class="header" style="position: relative; text-align: center; margin-bottom: 30px; padding: 10px 0;">
         <div style="display: inline-block;">
-            <h1 style="margin: 0; font-size: 1.6rem; letter-spacing: 2px; color: #fff;">✦ 라이프코드 (Life Code) ✦</h1>
+            <h1 style="margin: 0; font-size: 1.6rem; letter-spacing: 2px; color: #fff;">라이프코드 (Life Code)</h1>
+ <h1 style="margin: 0; font-size: 1.6rem; letter-spacing: 2px; color: #fff;">✦</h1>
             <p style="margin: 6px 0 0; font-size: 0.85rem; color: var(--muted);">숫자로 읽는 나의 본질과 인생 타임라인</p>
         </div>
         
@@ -308,11 +309,12 @@ async function login() {
                 <span id="v-zodiac-desc" class="zodiac-desc"></span>
             </div>
             <div class="card highlight-card"><span>인생여정수</span><strong id="v-lp"></strong></div>
+<div class="card highlight-card"><span>문 넘버</span><strong id="v-mn"></strong></div>
             <div class="card"><span>운명수</span><strong id="v-dt"></strong></div>
             <div class="card"><span>혼의 수</span><strong id="v-su"></strong></div>
             <div class="card"><span>성격수</span><strong id="v-ps"></strong></div>
             <div class="card"><span>완성수</span><strong id="v-mt"></strong></div>
-            <div class="card highlight-card"><span>문 넘버</span><strong id="v-mn"></strong></div>
+           
         </div>
         <div id="coreDescArea"></div>
 
@@ -649,11 +651,11 @@ function startAnalysis() {
 
    document.getElementById('coreDescArea').innerHTML = [
         {k:"인생여정수", v:lp},
-        {k:"운명수", v:dt},
+       {k:"문 넘버", v:mn},
         {k:"혼의 수", v:su},
         {k:"성격수", v:ps},
         {k:"완성수", v:mt},
-        {k:"문 넘버", v:mn}
+       {k:"운명수", v:dt}
     ].map(i => {
         // 문 넘버일 경우 전용 맵인 MOON_MAP에서 데이터를 가져오고, 나머지는 DEEP_MAP 사용
         const desc = (i.k === "문 넘버") ? (MOON_MAP[i.v] || "") : (DEEP_MAP[i.v] || "");
