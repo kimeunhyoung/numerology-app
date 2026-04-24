@@ -10,7 +10,7 @@ app.use(express.static(path.join(__dirname)));
 
 const SECRET = process.env.JWT_SECRET || "dev-change-me-secret";
 let CURRENT_PASSWORD = process.env.APP_PASSWORD || "888";
-const APP_BASE_URL = process.env.APP_BASE_URL || "http://localhost:3000";
+const APP_BASE_URL = process.env.APP_BASE_URL || "https://numerology-app-w6rq.onrender.com";
 let oneTimeKeys = new Map();
 
 // 1. QR 생성 페이지 (선생님 전용)
