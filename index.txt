@@ -92,7 +92,16 @@
         .cycle-label-p { font-weight: bold; color: var(--blue); font-size: 0.85rem; }
         .cycle-label-c { font-weight: bold; color: var(--red); font-size: 0.85rem; }
         .cycle-text { font-size: 0.88rem; color: #ddd; display: block; margin-top: 4px; border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 12px; }
-      
+        .loshu-wrap { background: rgba(255,255,255,0.02); padding: 25px; border-radius: 20px; border: 1px solid #333; margin-top: 10px; margin-bottom: 20px; }
+        .loshu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 300px; margin: 0 auto 25px; }
+        .loshu-cell { aspect-ratio: 1/1; background: #0d1117; border: 1px solid #333; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: 0.4s; }
+        .loshu-cell.active { border-color: var(--accent); background: rgba(163,102,255,0.05); box-shadow: 0 0 15px rgba(163,102,255,0.1); }
+        .loshu-label { font-size: 0.65rem; color: #666; position: absolute; top: 8px; font-weight: bold; text-align: center; width: 100%; }
+        .loshu-nums { font-size: 1.5rem; font-weight: 800; color: var(--gold); letter-spacing: 1px; }
+        .loshu-report-card { background: #161a25; padding: 20px; border-radius: 15px; border-left: 4px solid var(--accent); margin-bottom: 15px; }
+        .loshu-report-card h5 { margin: 0 0 10px 0; font-size: 0.95rem; color: var(--teal); }
+        .loshu-item { font-size: 0.88rem; color: #ccc; margin-bottom: 10px; line-height: 1.6; }
+        .loshu-point { color: var(--gold); font-weight: bold; }
 
         /* ── 10년 타임라인 새 스타일 ── */
         .timeline-wrap { background: linear-gradient(135deg, rgba(163,102,255,0.06), rgba(46,213,115,0.04)); border: 1px solid #2a2f3e; border-radius: 20px; padding: 28px 24px 24px; margin-bottom: 30px; position: relative; overflow: hidden; }
@@ -268,8 +277,8 @@ async function login() {
 <div class="container">
     <div class="header" style="position: relative; text-align: center; margin-bottom: 30px; padding: 10px 0;">
         <div style="display: inline-block;">
-            <h1 style="margin: 0; font-size: 1.4rem; letter-spacing: 2px; color: #fff;">✦ 라이프코드 (Life Code) ✦</h1>
- 
+            <h1 style="margin: 0; font-size: 1.6rem; letter-spacing: 2px; color: #fff;">라이프코드 (Life Code)</h1>
+ <h1 style="margin: 0; font-size: 1.6rem; letter-spacing: 2px; color: #fff;">✦</h1>
             <p style="margin: 6px 0 0; font-size: 0.85rem; color: var(--muted);">숫자로 읽는 나의 본질과 인생 타임라인</p>
         </div>
         
@@ -343,7 +352,24 @@ async function login() {
             </div>
         </div>
 
-        
+        <div class="section-title">📍 로슈 그리드 (Lo Shu Grid) 분석</div>
+        <div class="loshu-wrap">
+            <div class="loshu-grid" id="loshuGridArea">
+                <div class="loshu-cell" id="lc4"><span class="loshu-label">4 부(富)</span><div class="loshu-nums"></div></div>
+                <div class="loshu-cell" id="lc9"><span class="loshu-label">9 명성</span><div class="loshu-nums"></div></div>
+                <div class="loshu-cell" id="lc2"><span class="loshu-label">2 관계</span><div class="loshu-nums"></div></div>
+                <div class="loshu-cell" id="lc3"><span class="loshu-label">3 가족</span><div class="loshu-nums"></div></div>
+                <div class="loshu-cell" id="lc5"><span class="loshu-label">5 중심</span><div class="loshu-nums"></div></div>
+                <div class="loshu-cell" id="lc7"><span class="loshu-label">7 창의</span><div class="loshu-nums"></div></div>
+                <div class="loshu-cell" id="lc8"><span class="loshu-label">8 지식</span><div class="loshu-nums"></div></div>
+                <div class="loshu-cell" id="lc1"><span class="loshu-label">1 직업</span><div class="loshu-nums"></div></div>
+                <div class="loshu-cell" id="lc6"><span class="loshu-label">6 후원</span><div class="loshu-nums"></div></div>
+            </div>
+            <div class="accordion">
+                <div class="accordion-header"><h4>🔍 숫자 강도 및 화살표 분석</h4></div>
+                <div class="accordion-content"><div id="loshuAnalysis"></div></div>
+            </div>
+        </div>
 
         <div id="yearHighlightArea"></div>
 
@@ -404,20 +430,7 @@ async function login() {
 
 
 
-const TITLE_MAP = { 
-    1: "자립과 혁신 : 새로운 항로를 개척하는 해", 
-    2: "협력과 조율 : 관계 속에서 답을 찾는 해", 
-    3: "표현과 확산 : 당신의 재능이 꽃을 피우는 해", 
-    4: "안정과 건설 : 미래를 위한 단단한 토대의 해", 
-    5: "변화와 도약 : 경계를 넘어 외연을 확장하는 해", 
-    6: "책임과 헌신 : 사랑과 조화로 안식처를 만드는 해", 
-    7: "성찰과 통찰 : 고독 속에서 지혜를 캐내는 해", 
-    8: "성취와 풍요 : 노력의 결실을 현실로 거두는 해", 
-    9: "완성과 비움 : 고귀한 마무리를 통해 다음을 준비하는 해", 
-    11: "직관과 영감 : 시대를 깨우는 영적 메신저의 해", 
-    22: "마스터 빌더 : 거대 비전을 현실로 구축하는 해", 
-    33: "우주적 자비 : 조건 없는 사랑으로 세상을 치유하는 해" 
-};
+const TITLE_MAP = { 1:"자립과 개척의 시기",2:"협력과 조화의 시기",3:"표현과 창조의 시기",4:"안정과 내실의 시기",5:"변화와 탐험의 시기",6:"책임과 사랑의 시기",7:"성찰과 지혜의 시기",8:"성취와 권위의 시기",9:"완성과 자비의 시기",11:"직관과 영감의 시기",22:"원대한 건설의 시기",33:"우주적 치유와 봉사의 시기" };
 
 const TL_KEYWORD = { 1:"시작",2:"협력",3:"확장",4:"안정",5:"변화",6:"조화",7:"성찰",8:"성취",9:"정리",11:"영감",22:"건설" };
 const TL_COLOR = { 1:"#58a6ff",2:"#79c0ff",3:"#ffa657",4:"#56d364",5:"#ff7b72",6:"#f778ba",7:"#a5d6ff",8:"#fbc531",9:"#a366ff",11:"#e0a9ff",22:"#ffe97a" };
@@ -700,7 +713,63 @@ function startAnalysis() {
     }
     document.getElementById('missingNumberArea').innerHTML=missingHtml;
 
-   
+    // ── 로슈 그리드 ──
+    const birthStr=y.toString()+m.toString().padStart(2,'0')+d.toString().padStart(2,'0');
+    const counts=Array(10).fill(0);
+    for(let n of birthStr)if(n!=='0')counts[n]++;
+    for(let i=1;i<=9;i++){const cell=document.getElementById('lc'+i);if(cell){const numDiv=cell.querySelector('.loshu-nums');numDiv.innerText=counts[i]>0?i.toString().repeat(counts[i]):"";counts[i]>0?cell.classList.add('active'):cell.classList.remove('active');}}
+    const has=(n)=>counts[n]>0;
+    let finalHtml="";
+    let strengthText="";
+    if(has(9)&&has(5)&&has(1))strengthText+=`<div class="loshu-item"><b>🔥 의지의 화살표 (9-5-1):</b> 남 밑에서 지시받는 걸 견디지 못하는 <span class="loshu-point">독고다이형 리더</span>입니다. 역경이 올수록 더 강해지는 <span class="loshu-point">자수성가형 에너지</span>가 폭발적이니, 누가 뭐라든 당신 고집대로 밀고 가는 게 답입니다. 이상(9)과 의지(5), 행동(1)이 일직선으로 연결된 이 에너지는 당신을 결국 성공으로 견인할 핵심 엔진입니다.</div>`;
+    if(has(4)&&has(9)&&has(2))strengthText+=`<div class="loshu-item"><b>🧠 정신의 화살표 (4-9-2):</b> 웬만한 사람보다 머리 회전이 두 수 앞서 있습니다. <span class="loshu-point">전략적 기획력</span>이 뛰어난 천재적 기질로 남들이 보지 못하는 허점을 단번에 간파합니다. 지식 습득 능력이 좋아 아는 것이 곧 힘이 되는 인생입니다.</div>`;
+
+    if(has(8)&&has(5)&&has(2))strengthText+=`<div class="loshu-item"><b>🏔️ 결단력의 화살표 (2-5-8):</b> 어떤 위기에도 흔들리지 않는 강한 신념과 <span class="loshu-point">결단력</span>을 의미합니다. 현실적인 감각(8)과 자아의 중심(5), 관계의 조율(2)이 조화를 이루어, 한 번 마음먹은 일은 산이 무너져도 끝까지 책임지고 완수해내는 뚝심이 있습니다.</div>`;
+
+    if(has(4)&&has(3)&&has(8))strengthText+=`<div class="loshu-item"><b>📝 계획의 화살표 (4-3-8):</b> 일을 시작하기 전 완벽하게 설계도를 그리는 전략가입니다. 체계적이고 조직적인 사고를 바탕으로 리스크를 최소화하며 성공 확률을 높이는 능력을 갖추고 있습니다.</div>`;
+
+
+
+
+    finalHtml+=`<div class="loshu-report-card" style="border-left-color:var(--teal);margin-bottom:25px;"><h5 style="color:var(--teal);">🎯 강점 분석</h5><div class="desc-content">${strengthText||"특별한 에너지 치우침 없이 균형 잡힌 기운입니다."}</div></div>`;
+
+
+
+    let weaknessText="";
+    if(!has(5))weaknessText+=`<div class="loshu-item"><b>⚠️ 5번(중심) 부재:</b> 겉은 강해 보여도 <span class="loshu-point">내면은 태풍 속의 돛단배</span>처럼 자주 흔들립니다. 중심을 잡지 못하면 실속 없는 바쁨에 치이기 쉬우니, 매일 아침 명상이나 확언으로 본인의 중심을 세우는 훈련이 필수입니다.</div>`;
+    if(!has(8))weaknessText+=`<div class="loshu-item"><b>⚠️ 8번(내실) 부재:</b> 능력은 출중하나 <span class="loshu-point">실속을 챙기는 힘</span>이 약합니다. 돈을 벌어도 밑 빠진 독에 물 붓기가 될 수 있으니, 감이 아닌 <span class="loshu-point">데이터와 가계부</span>를 믿고 자산 관리에 더 신경 쓰세요.</div>`;
+    if(!has(4))weaknessText+=`<div class="loshu-item"><b>⚠️ 4번(토대) 부재:</b> 머리는 좋은데 <span class="loshu-point">뒷심이 부족</span>합니다. 벌려놓은 일을 끝맺지 못하면 결국 <span class="loshu-point">'말뿐인 사람'</span>이 됩니다. 정리 정돈과 루틴에 자신을 가두어 실행의 연속성을 만드십시오.</div>`;
+
+    if(!has(3))weaknessText += `<div class="loshu-item"><b>⚠️ 3번(기획) 부재:</b> 열정은 넘치는데 <span class="loshu-point">시작 전 설계</span>가 부실합니다. 무작정 뛰어들기보다 <span class="loshu-point">TO-DO 리스트</span>를 쪼개어 적는 습관만 가져도 성공 확률이 2배는 뜁니다.</div>`;
+if(!has(6)) weaknessText += `<div class="loshu-item"><b>⚠️ 6번(조화) 부재:</b> 일은 잘할지 몰라도 인간관계에서 <span class="loshu-point">차갑고 무심하다</span>는 오해를 사기 딱 좋습니다. 사람을 '목적'이 아닌 '마음'으로 대해야 운의 그릇이 커집니다.</div>`;
+if(!has(2)) weaknessText += `<div class="loshu-item"><b>⚠️ 2번(협력) 부재:</b> 독불장군 기질이 강해 <span class="loshu-point">주변의 도움</span>을 받는 것을 자존심 상해합니다. 혼자 가면 빠르지만 함께 가면 멀리 갑니다. 주변 귀인을 알아보는 눈을 길러야 합니다.</div>`;
+
+
+
+    finalHtml+=`<div class="loshu-report-card" style="border-left-color:#ff7b72;margin-bottom:25px;"><h5 style="color:#ff7b72;">⚠️ 보완 영역</h5><div class="desc-content">${weaknessText||"현재 그리드상 특별한 약점 없이 평온한 흐름입니다."}</div></div>`;
+
+let stressTxt = "";
+if(counts[9] >= 2) stressTxt += `<b>명예욕(9)</b>이 과합니다. 남 시선 신경 쓰느라 속은 문드러지고 있진 않나요? `;
+if(counts[1] >= 2) stressTxt += `<b>고집(1)</b>이 황소고집입니다. 내 말이 무조건 맞다는 생각만 버려도 인생 편해집니다. `;
+if(counts[2] >= 2) stressTxt += `<b>예민함(2)</b>이 극치입니다. 남의 사소한 말 한마디에 밤잠 설치는 건 이제 그만하세요. `;
+
+    let solutionTxt=(!has(4)||!has(8))?`<span class="loshu-point">'생각은 짧게, 행동은 즉시'</span> 원칙을 세우는 것이 핵심입니다.`:`당신은 <span class="loshu-point">성실한 실천가</span>입니다. 직관을 믿고 묵묵히 전진하세요.`;
+
+
+finalHtml += `
+    <div class="loshu-report-card advice-box" style="background: rgba(251, 197, 49, 0.05); border-left: 4px solid #fbc531; padding: 25px; border-radius: 15px;">
+        <h5 style="color: #fbc531; font-size: 1.1rem; margin-bottom: 15px;">💡 핵심 성장 전략</h5>
+        <div class="desc-content" style="line-height: 1.8;">
+            ${stressTxt ? `<p style="color: #ff7b72; margin-bottom: 15px;">🔥 <b>에너지 과부하 경고:</b> ${stressTxt}</p>` : ""}
+            <p style="margin-bottom: 15px;">당신은 본래 <span class="loshu-point">지적 야망과 강한 자아</span>가 결합된 구조입니다. ${has(5) ? "그나마 <span class='loshu-point'>복원력(5)</span>이라는 오뚝이 근성이 있어 위기에서 살아남는 천행을 타고났습니다." : "<span class='loshu-point'>중심(5)</span>이 비어 있어 감정 기복이 심할 수 있으니 정신 수양이 필수입니다."}</p>
+            ${(has(9) && has(5) && has(1)) ? `<p style="margin-bottom: 15px;">특히 <b>'성공의 화살표'</b>를 가진 당신은 <span class="loshu-point">결국 높은 자리에 오를 팔자</span>입니다. 어설픈 조언에 흔들리지 마세요. <b>당신의 직관</b>이 곧 정답이니 뚝심 있게 밀어붙이세요.</p>` : ""}
+            <p><b>📍 최종 솔루션:</b> ${solutionTxt}</p>
+        </div>
+    </div>`;
+
+
+    
+    document.getElementById('loshuAnalysis').innerHTML=finalHtml;
 
 
 

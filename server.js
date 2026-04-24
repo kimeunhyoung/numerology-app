@@ -2,13 +2,15 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const path = require("path");
+require("dotenv").config();
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname)));
 
-const SECRET = "x9k#mP2$qL8vN5@rT3wZ";
-let CURRENT_PASSWORD = "888";
+const SECRET = process.env.JWT_SECRET || "dev-change-me-secret";
+let CURRENT_PASSWORD = process.env.APP_PASSWORD || "888";
+const APP_BASE_URL = process.env.APP_BASE_URL || "http://localhost:3000";
 let oneTimeKeys = new Map();
 
 // 1. QR 생성 페이지 (선생님 전용)
@@ -18,7 +20,7 @@ app.get("/create-invite", (req, res) => {
     oneTimeKeys.set(inviteKey, expireAt);
     setTimeout(() => oneTimeKeys.delete(inviteKey), 2 * 60 * 60 * 1000);
 
-    const inviteLink = `https://numerology-app-w6rq.onrender.com/enter?key=${inviteKey}`;
+    const inviteLink = `${APP_BASE_URL}/enter?key=${inviteKey}`;
 
     res.send(`
         <!DOCTYPE html>
@@ -178,8 +180,11 @@ app.get("/check-auth", (req, res) => {
     }
 });
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT || 3000);
 app.listen(PORT, () => {
     console.log(`서버 실행 중 - 포트 ${PORT}`);
-    console.log(`QR 생성: http://localhost:${PORT}/create-invite`);
+    if (!process.env.JWT_SECRET) {
+        console.warn("경고: JWT_SECRET이 설정되지 않아 개발용 기본값을 사용 중입니다.");
+    }
+    console.log(`QR 생성: ${APP_BASE_URL}/create-invite`);
 });
