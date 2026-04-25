@@ -166,7 +166,6 @@
         }
         .kw { color: var(--accent); font-weight: bold; }
         .legend-item, .yc-year, .yc-desc, .bar-year, .bar-energy { color: #d6cde6; }
-        .loshu-label { color: #bfb5d3; }
         .table-wrapper { overflow-x: auto; margin-bottom: 20px; border-radius: 14px; border: 1px solid var(--glass-border); background: rgba(15,18,32,0.96); backdrop-filter: blur(6px); }
         table { width: 100%; border-collapse: collapse; min-width: 300px; }
         th { background: rgba(255,255,255,0.12); color: #f7dfb5; padding: 12px 8px; font-size: 0.87rem; border-bottom: 1px solid rgba(255,255,255,0.2); }
@@ -183,17 +182,6 @@
         .cycle-label-p { font-weight: bold; color: var(--blue); font-size: 0.85rem; }
         .cycle-label-c { font-weight: bold; color: var(--red); font-size: 0.85rem; }
         .cycle-text { font-size: 0.88rem; color: #ddd; display: block; margin-top: 4px; border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 12px; }
-        .loshu-wrap { background: rgba(20,24,42,0.94); padding: 25px; border-radius: 22px; border: 1px solid var(--glass-border); margin-top: 10px; margin-bottom: 20px; backdrop-filter: blur(8px); }
-        .loshu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 300px; margin: 0 auto 25px; }
-        .loshu-cell { aspect-ratio: 1/1; background: rgba(14,17,31,0.96); border: 1px solid var(--glass-border); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: 0.4s; backdrop-filter: blur(6px); }
-        .loshu-cell.active { border-color: var(--accent-2); background: rgba(143,99,255,0.16); box-shadow: 0 0 18px rgba(143,99,255,0.22); }
-        .loshu-label { font-size: 0.65rem; color: #666; position: absolute; top: 8px; font-weight: bold; text-align: center; width: 100%; }
-        .loshu-nums { font-size: 1.5rem; font-weight: 800; color: var(--gold); letter-spacing: 1px; }
-        .loshu-report-card { background: rgba(15,18,32,0.96); padding: 20px; border-radius: 16px; border-left: 4px solid var(--accent); margin-bottom: 15px; border: 1px solid var(--glass-border); backdrop-filter: blur(6px); }
-        .loshu-report-card h5 { margin: 0 0 10px 0; font-size: 0.95rem; color: var(--teal); }
-        .loshu-item { font-size: 0.88rem; color: #ccc; margin-bottom: 10px; line-height: 1.6; }
-        .loshu-point { color: var(--gold); font-weight: bold; }
-
         /* ── 10년 타임라인 새 스타일 ── */
         .timeline-wrap { background: linear-gradient(135deg, rgba(26,30,52,0.95), rgba(38,28,61,0.92)); border: 1px solid var(--glass-border); border-radius: 20px; padding: 28px 24px 24px; margin-bottom: 30px; position: relative; overflow: hidden; backdrop-filter: blur(6px); }
         .timeline-wrap::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(163,102,255,0.08), transparent 70%); pointer-events: none; }
@@ -403,25 +391,6 @@
             </div>
             <div class="accordion-content">
                 <div id="missingNumberArea"></div>
-            </div>
-        </div>
-
-        <div class="section-title">📍 로슈 그리드 (Lo Shu Grid) 분석</div>
-        <div class="loshu-wrap">
-            <div class="loshu-grid" id="loshuGridArea">
-                <div class="loshu-cell" id="lc4"><span class="loshu-label">4 부(富)</span><div class="loshu-nums"></div></div>
-                <div class="loshu-cell" id="lc9"><span class="loshu-label">9 명성</span><div class="loshu-nums"></div></div>
-                <div class="loshu-cell" id="lc2"><span class="loshu-label">2 관계</span><div class="loshu-nums"></div></div>
-                <div class="loshu-cell" id="lc3"><span class="loshu-label">3 가족</span><div class="loshu-nums"></div></div>
-                <div class="loshu-cell" id="lc5"><span class="loshu-label">5 중심</span><div class="loshu-nums"></div></div>
-                <div class="loshu-cell" id="lc7"><span class="loshu-label">7 창의</span><div class="loshu-nums"></div></div>
-                <div class="loshu-cell" id="lc8"><span class="loshu-label">8 지식</span><div class="loshu-nums"></div></div>
-                <div class="loshu-cell" id="lc1"><span class="loshu-label">1 직업</span><div class="loshu-nums"></div></div>
-                <div class="loshu-cell" id="lc6"><span class="loshu-label">6 후원</span><div class="loshu-nums"></div></div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header"><h4>🔍 숫자 강도 및 화살표 분석</h4></div>
-                <div class="accordion-content"><div id="loshuAnalysis"></div></div>
             </div>
         </div>
 

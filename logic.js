@@ -373,49 +373,6 @@ function startAnalysis() {
     }
     setHtml("missingNumberArea", missingHtml);
 
-    const birthStr = y.toString() + m.toString().padStart(2, "0") + d.toString().padStart(2, "0");
-    const counts = Array(10).fill(0);
-    for (const n of birthStr) if (n !== "0") counts[n]++;
-    for (let i = 1; i <= 9; i++) {
-        const cell = document.getElementById("lc" + i);
-        if (cell) {
-            const numDiv = cell.querySelector(".loshu-nums");
-            numDiv.innerText = counts[i] > 0 ? i.toString().repeat(counts[i]) : "";
-            counts[i] > 0 ? cell.classList.add("active") : cell.classList.remove("active");
-        }
-    }
-    const has = n => counts[n] > 0;
-    let finalHtml = "";
-    let strengthText = "";
-    LOSHU_STRENGTH_RULES.forEach(rule => {
-        if (rule.requires.every(has)) strengthText += rule.text;
-    });
-    finalHtml += `<div class="loshu-report-card" style="border-left-color:var(--teal);margin-bottom:25px;"><h5 style="color:var(--teal);">🎯 강점 분석</h5><div class="desc-content">${strengthText || INTERPRETATION_TEXTS.loshuStrengthDefault}</div></div>`;
-
-    let weaknessText = "";
-    LOSHU_WEAKNESS_RULES.forEach(rule => {
-        if (!has(rule.missing)) weaknessText += rule.text;
-    });
-    finalHtml += `<div class="loshu-report-card" style="border-left-color:#ff7b72;margin-bottom:25px;"><h5 style="color:#ff7b72;">⚠️ 보완 영역</h5><div class="desc-content">${weaknessText || INTERPRETATION_TEXTS.loshuWeaknessDefault}</div></div>`;
-
-    let stressTxt = "";
-    LOSHU_STRESS_RULES.forEach(rule => {
-        if (counts[rule.digit] >= rule.minCount) stressTxt += rule.text;
-    });
-
-    const solutionTxt = (!has(4) || !has(8)) ? INTERPRETATION_TEXTS.loshuSolutionWhenWeak : INTERPRETATION_TEXTS.loshuSolutionWhenStable;
-    finalHtml += `
-    <div class="loshu-report-card advice-box" style="background: rgba(251, 197, 49, 0.05); border-left: 4px solid #fbc531; padding: 25px; border-radius: 15px;">
-        <h5 style="color: #fbc531; font-size: 1.1rem; margin-bottom: 15px;">💡 핵심 성장 전략</h5>
-        <div class="desc-content" style="line-height: 1.8;">
-            ${stressTxt ? `<p style="color: #ff7b72; margin-bottom: 15px;">🔥 <b>에너지 과부하 경고:</b> ${stressTxt}</p>` : ""}
-            <p style="margin-bottom: 15px;">${INTERPRETATION_TEXTS.loshuCoreStructurePrefix} ${has(5) ? INTERPRETATION_TEXTS.loshuCoreStructureWith5 : INTERPRETATION_TEXTS.loshuCoreStructureWithout5}</p>
-            ${(has(9) && has(5) && has(1)) ? `<p style="margin-bottom: 15px;">${INTERPRETATION_TEXTS.loshuSuccessArrow}</p>` : ""}
-            <p><b>📍 최종 솔루션:</b> ${solutionTxt}</p>
-        </div>
-    </div>`;
-    setHtml("loshuAnalysis", finalHtml);
-
     const cs = YEAR_STRATEGY[py] || YEAR_STRATEGY[1];
     setHtml("yearHighlightArea", `<div class="card" style="border:2px solid var(--accent);background:linear-gradient(145deg,rgba(163,102,255,0.15),rgba(20,184,166,0.1));padding:25px;margin-top:40px;margin-bottom:30px;border-radius:20px;position:relative;overflow:hidden;"><div style="position:absolute;top:-10px;right:-10px;font-size:5rem;color:rgba(163,102,255,0.1);font-weight:bold;">${py}</div><h3 style="color:var(--teal);margin-bottom:15px;font-size:1.2rem;">🌟 ${curY}년 메인 테마</h3><div style="font-size:1.4rem;font-weight:bold;color:var(--text);margin-bottom:12px;">${py}번. ${TITLE_MAP[py]}</div><p style="font-size:0.95rem;color:#ccc;line-height:1.6;position:relative;z-index:1;"><b style="color:var(--gold);">올해의 목표:</b> ${cs.goal}<br><b style="color:var(--gold);">행동 전략:</b> ${cs.action}</p></div>`);
 

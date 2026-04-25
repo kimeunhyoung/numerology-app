@@ -70,35 +70,8 @@ window.NUMEROLOGY_DATA = (() => {
     const DAY_ADVICE = {1:{status:"시작",desc:"새로운 계획 실행에 좋은 날입니다."},2:{status:"조율",desc:"경청하고 협력하세요. 계약에 유리합니다."},3:{status:"확장",desc:"창의성이 빛나는 날. 표현에 적극적이 되세요."},4:{status:"내실",desc:"점검이 필요한 날. 성급한 결정은 금물입니다."},5:{status:"변화",desc:"새로운 만남이 행운을 줍니다."},6:{status:"조화",desc:"가족과 지인을 돌보기 좋은 날입니다."},7:{status:"성찰",desc:"명상과 공부에 아주 좋은 날입니다."},8:{status:"성취",desc:"결실의 날. 비즈니스와 금전운이 상승합니다."},9:{status:"정리",desc:"과거를 매듭짓고 비우는 날입니다."},11:{status:"직관",desc:"예감이 적중하니 직관을 믿으세요."},22:{status:"대업",desc:"장기적인 계획을 세우기 좋습니다."}};
     const DAILY_TIPS = {1:{a:"새로운 프로젝트 구상하기",c:"독단적인 결정 주의"},2:{a:"상대방의 의견 경청하기",c:"감정적인 예민함 조심"},3:{a:"창의적인 아이디어 기록하기",c:"말실수나 가벼운 언행 주의"},4:{a:"책상 정리 및 서류 검토",c:"지나친 고정관념 경계"},5:{a:"새로운 장소나 음식 도전",c:"충동적인 소비나 선택 조심"},6:{a:"가족이나 연인과 대화하기",c:"타인의 일에 불필요한 간섭"},7:{a:"혼자만의 명상이나 독서",c:"사회적 고립감이나 우울감"},8:{a:"중요한 의사결정 내리기",c:"권위적인 태도나 지나친 욕심"},9:{a:"불필요한 인연 정리하기",c:"과거에 대한 미련과 후회"},11:{a:"직관적인 예감 따라가기",c:"예민함으로 인한 정신적 피로"},22:{a:"거대한 프로젝트 계획하기",c:"현실을 무시한 무리한 확장"}};
 
-    const LOSHU_STRENGTH_RULES = [
-        { requires:[9,5,1], text:`<div class="loshu-item"><b>🔥 의지의 화살표 (9-5-1):</b> 남 밑에서 지시받는 걸 견디지 못하는 <span class="loshu-point">독고다이형 리더</span>입니다. 역경이 올수록 더 강해지는 <span class="loshu-point">자수성가형 에너지</span>가 폭발적이니, 누가 뭐라든 당신 고집대로 밀고 가는 게 답입니다. 이상(9)과 의지(5), 행동(1)이 일직선으로 연결된 이 에너지는 당신을 결국 성공으로 견인할 핵심 엔진입니다.</div>` },
-        { requires:[4,9,2], text:`<div class="loshu-item"><b>🧠 정신의 화살표 (4-9-2):</b> 웬만한 사람보다 머리 회전이 두 수 앞서 있습니다. <span class="loshu-point">전략적 기획력</span>이 뛰어난 천재적 기질로 남들이 보지 못하는 허점을 단번에 간파합니다. 지식 습득 능력이 좋아 아는 것이 곧 힘이 되는 인생입니다.</div>` },
-        { requires:[8,5,2], text:`<div class="loshu-item"><b>🏔️ 결단력의 화살표 (2-5-8):</b> 어떤 위기에도 흔들리지 않는 강한 신념과 <span class="loshu-point">결단력</span>을 의미합니다. 현실적인 감각(8)과 자아의 중심(5), 관계의 조율(2)이 조화를 이루어, 한 번 마음먹은 일은 산이 무너져도 끝까지 책임지고 완수해내는 뚝심이 있습니다.</div>` },
-        { requires:[4,3,8], text:`<div class="loshu-item"><b>📝 계획의 화살표 (4-3-8):</b> 일을 시작하기 전 완벽하게 설계도를 그리는 전략가입니다. 체계적이고 조직적인 사고를 바탕으로 리스크를 최소화하며 성공 확률을 높이는 능력을 갖추고 있습니다.</div>` }
-    ];
-    const LOSHU_WEAKNESS_RULES = [
-        { missing:5, text:`<div class="loshu-item"><b>⚠️ 5번(중심) 부재:</b> 겉은 강해 보여도 <span class="loshu-point">내면은 태풍 속의 돛단배</span>처럼 자주 흔들립니다. 중심을 잡지 못하면 실속 없는 바쁨에 치이기 쉬우니, 매일 아침 명상이나 확언으로 본인의 중심을 세우는 훈련이 필수입니다.</div>` },
-        { missing:8, text:`<div class="loshu-item"><b>⚠️ 8번(내실) 부재:</b> 능력은 출중하나 <span class="loshu-point">실속을 챙기는 힘</span>이 약합니다. 돈을 벌어도 밑 빠진 독에 물 붓기가 될 수 있으니, 감이 아닌 <span class="loshu-point">데이터와 가계부</span>를 믿고 자산 관리에 더 신경 쓰세요.</div>` },
-        { missing:4, text:`<div class="loshu-item"><b>⚠️ 4번(토대) 부재:</b> 머리는 좋은데 <span class="loshu-point">뒷심이 부족</span>합니다. 벌려놓은 일을 끝맺지 못하면 결국 <span class="loshu-point">'말뿐인 사람'</span>이 됩니다. 정리 정돈과 루틴에 자신을 가두어 실행의 연속성을 만드십시오.</div>` },
-        { missing:3, text:`<div class="loshu-item"><b>⚠️ 3번(기획) 부재:</b> 열정은 넘치는데 <span class="loshu-point">시작 전 설계</span>가 부실합니다. 무작정 뛰어들기보다 <span class="loshu-point">TO-DO 리스트</span>를 쪼개어 적는 습관만 가져도 성공 확률이 2배는 뜁니다.</div>` },
-        { missing:6, text:`<div class="loshu-item"><b>⚠️ 6번(조화) 부재:</b> 일은 잘할지 몰라도 인간관계에서 <span class="loshu-point">차갑고 무심하다</span>는 오해를 사기 딱 좋습니다. 사람을 '목적'이 아닌 '마음'으로 대해야 운의 그릇이 커집니다.</div>` },
-        { missing:2, text:`<div class="loshu-item"><b>⚠️ 2번(협력) 부재:</b> 독불장군 기질이 강해 <span class="loshu-point">주변의 도움</span>을 받는 것을 자존심 상해합니다. 혼자 가면 빠르지만 함께 가면 멀리 갑니다. 주변 귀인을 알아보는 눈을 길러야 합니다.</div>` }
-    ];
-    const LOSHU_STRESS_RULES = [
-        { digit:9, minCount:2, text:`<b>명예욕(9)</b>이 과합니다. 남 시선 신경 쓰느라 속은 문드러지고 있진 않나요? ` },
-        { digit:1, minCount:2, text:`<b>고집(1)</b>이 황소고집입니다. 내 말이 무조건 맞다는 생각만 버려도 인생 편해집니다. ` },
-        { digit:2, minCount:2, text:`<b>예민함(2)</b>이 극치입니다. 남의 사소한 말 한마디에 밤잠 설치는 건 이제 그만하세요. ` }
-    ];
     const INTERPRETATION_TEXTS = {
         growthMapAllActive: "출생 데이터 기준, 모든 성향 지표가 고르게 활성화되어 있습니다. ✨",
-        loshuStrengthDefault: "특별한 에너지 치우침 없이 균형 잡힌 기운입니다.",
-        loshuWeaknessDefault: "현재 그리드상 특별한 약점 없이 평온한 흐름입니다.",
-        loshuSolutionWhenWeak: "<span class=\"loshu-point\">'생각은 짧게, 행동은 즉시'</span> 원칙을 세우는 것이 핵심입니다.",
-        loshuSolutionWhenStable: "당신은 <span class=\"loshu-point\">성실한 실천가</span>입니다. 직관을 믿고 묵묵히 전진하세요.",
-        loshuCoreStructurePrefix: "당신은 본래 <span class=\"loshu-point\">지적 야망과 강한 자아</span>가 결합된 구조입니다.",
-        loshuCoreStructureWith5: "그나마 <span class='loshu-point'>복원력(5)</span>이라는 오뚝이 근성이 있어 위기에서 살아남는 천행을 타고났습니다.",
-        loshuCoreStructureWithout5: "<span class='loshu-point'>중심(5)</span>이 비어 있어 감정 기복이 심할 수 있으니 정신 수양이 필수입니다.",
-        loshuSuccessArrow: "특히 <b>'성공의 화살표'</b>를 가진 당신은 <span class=\"loshu-point\">결국 높은 자리에 오를 팔자</span>입니다. 어설픈 조언에 흔들리지 마세요. <b>당신의 직관</b>이 곧 정답이니 뚝심 있게 밀어붙이세요.",
         comboCommentMatch: "인생여정수와 올해의 수가 '{num}'로 일치합니다. 본연의 힘이 극대화되는 시기이니, 가장 자신 있는 일을 오늘 바로 실행하세요!",
         comboCommentYear7: "올해는 내실을 다지는 해입니다. {lp}번의 고유한 재능을 어떻게 더 지혜롭게 전달할지 깊이 성찰해 보세요.",
         comboCommentDefault: "당신은 {lp}번의 고유한 역량을 가졌습니다. 현재 지나고 있는 {py}번의 에너지 흐름은 그 역량을 더욱 견고하게 만들어줄 소중한 과정입니다."
@@ -123,9 +96,6 @@ window.NUMEROLOGY_DATA = (() => {
         MONTHLY_KEYWORDS,
         DAY_ADVICE,
         DAILY_TIPS,
-        LOSHU_STRENGTH_RULES,
-        LOSHU_WEAKNESS_RULES,
-        LOSHU_STRESS_RULES,
         INTERPRETATION_TEXTS,
         getZodiacInfo
     };
