@@ -30,7 +30,39 @@ const {
 const isPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
 const storage = isPWA ? localStorage : sessionStorage;
 
-document.addEventListener("DOMContentLoaded", checkAuth);
+document.addEventListener("DOMContentLoaded", () => {
+    enforceFloatingDownloadButton();
+    checkAuth();
+});
+
+function enforceFloatingDownloadButton() {
+    const btn = document.getElementById("finalDownloadBtn");
+    if (!btn) return;
+
+    const applyFloatingStyle = () => {
+        const mobile = window.matchMedia("(max-width: 640px)").matches;
+        const bottomPx = mobile ? "10px" : "14px";
+        const rightPx = mobile ? "10px" : "14px";
+
+        // 일부 모바일 브라우저에서 스타일 누락/캐시 시에도 항상 고정되도록 강제 적용
+        btn.style.setProperty("position", "fixed", "important");
+        btn.style.setProperty("bottom", bottomPx, "important");
+        btn.style.setProperty("right", rightPx, "important");
+        btn.style.setProperty("left", "auto", "important");
+        btn.style.setProperty("top", "auto", "important");
+        btn.style.setProperty("z-index", "99999", "important");
+        btn.style.setProperty("transform", "none", "important");
+    };
+
+    applyFloatingStyle();
+    window.addEventListener("resize", applyFloatingStyle);
+    window.addEventListener("orientationchange", applyFloatingStyle);
+    window.addEventListener("scroll", applyFloatingStyle, { passive: true });
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", applyFloatingStyle);
+        window.visualViewport.addEventListener("scroll", applyFloatingStyle);
+    }
+}
 
 function showToast(message, type = "warn", duration = 2200) {
     const toast = document.createElement("div");
