@@ -311,26 +311,35 @@ function startAnalysis() {
     document.getElementById("v-zodiac-name").innerText = `${z.i} ${z.n}`;
     document.getElementById("v-zodiac-desc").innerText = z.t;
 
-    const yr_r = reduceToSingle(String(y).split("").reduce((a, b) => Number(a) + Number(b), 0), true);
-    const mr_r = reduceToSingle(m, true);
-    const dr_r = reduceToSingle(d, true);
+    // 각 구성(년/월/일)의 각 자리 합을 먼저 구하고 반드시 한자리수로 축약합니다 (마스터수 예외 처리하지 않음)
+    const yearDigitsSum = String(y).split("").reduce((a, b) => Number(a) + Number(b), 0);
+    const yr_r = reduceToSingle(yearDigitsSum, false);
+    const monthDigitsSum = String(m).split("").reduce((a, b) => Number(a) + Number(b), 0);
+    const mr_r = reduceToSingle(monthDigitsSum, false);
+    const dayDigitsSum = String(d).split("").reduce((a, b) => Number(a) + Number(b), 0);
+    const dr_r = reduceToSingle(dayDigitsSum, false);
 
-    const lpS = yr_r + mr_r + dr_r;
+    const coreBaseSum = yr_r + mr_r + dr_r;
+    const lpS = coreBaseSum;
     const lp = reduceToSingle(lpS, true);
-    const mnS = mr_r + dr_r;
+    const mnS = mr_r + dr_r; // month reduced + day reduced
     const mn = reduceToSingle(mnS, true);
+
     const sc = getNameScore(name);
-    const su = reduceToSingle(sc.soulSum, true);
-    const ps = reduceToSingle(sc.consSum, true);
-    const dtS = sc.soulSum + sc.consSum;
+    const suS = sc.soulSum; // raw vowel total (합산전수)
+    const su = reduceToSingle(suS, true);
+    const psS = reduceToSingle(sc.consSum, true); // consonant total reduced (allow master)
+    const ps = psS;
+
+    const dtS = su + ps; // combine reduced soul + reduced personality
     const dt = reduceToSingle(dtS, true);
     const mtS = lp + dt;
     const mt = reduceToSingle(mtS, true);
 
     document.getElementById("v-lp").innerText = `${lp}(${lpS})`;
     document.getElementById("v-dt").innerText = `${dt}(${dtS})`;
-    document.getElementById("v-su").innerText = `${su}(${sc.soulSum})`;
-    document.getElementById("v-ps").innerText = `${ps}(${sc.consSum})`;
+    document.getElementById("v-su").innerText = `${su}(${suS})`;
+    document.getElementById("v-ps").innerText = `${ps}(${psS})`;
     document.getElementById("v-mt").innerText = `${mt}(${mtS})`;
     document.getElementById("v-mn").innerText = `${mn}(${mnS})`;
 
