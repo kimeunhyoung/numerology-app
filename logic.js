@@ -322,14 +322,16 @@ function startAnalysis() {
     const sc = getNameScore(name);
     const su = reduceToSingle(sc.soulSum, true);
     const ps = reduceToSingle(sc.consSum, true);
-    const dt = reduceToSingle(sc.soulSum + sc.consSum, true);
-    const mt = reduceToSingle(lp + dt, true);
+    const dtS = sc.soulSum + sc.consSum;
+    const dt = reduceToSingle(dtS, true);
+    const mtS = lp + dt;
+    const mt = reduceToSingle(mtS, true);
 
     document.getElementById("v-lp").innerText = `${lp}(${lpS})`;
-    document.getElementById("v-dt").innerText = dt;
-    document.getElementById("v-su").innerText = su;
-    document.getElementById("v-ps").innerText = ps;
-    document.getElementById("v-mt").innerText = mt;
+    document.getElementById("v-dt").innerText = `${dt}(${dtS})`;
+    document.getElementById("v-su").innerText = `${su}(${sc.soulSum})`;
+    document.getElementById("v-ps").innerText = `${ps}(${sc.consSum})`;
+    document.getElementById("v-mt").innerText = `${mt}(${mtS})`;
     document.getElementById("v-mn").innerText = `${mn}(${mnS})`;
 
     setHtml("coreDescArea", [
