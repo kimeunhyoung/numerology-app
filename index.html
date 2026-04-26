@@ -66,6 +66,7 @@
             font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
             margin: 0;
             padding: 18px;
+            padding-bottom: 110px; /* 하단 고정 버튼과 콘텐츠 겹침 방지 */
             line-height: 1.72;
             min-height: 100vh;
         }
@@ -253,34 +254,54 @@
 
 #finalDownloadBtn {
     position: fixed;
-    bottom: 30px;
-    right: 25px;
-    width: 65px;
-    height: 65px;
+    bottom: 14px; /* fallback for browsers without max()/env() support */
+    bottom: max(14px, env(safe-area-inset-bottom));
+    right: 14px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #8f63ff, #d9b16f);
+    background: linear-gradient(135deg, #a366ff, #9d50bb);
     color: white;
     border: none;
     box-shadow: 0 10px 24px rgba(143, 99, 255, 0.42);
     cursor: pointer;
-    z-index: 9999; /* 화면 최상단 */
-    display: none; /* 분석 결과가 나올 때만 보이게 설정 */
+    z-index: 9999;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    line-height: 1.2;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    line-height: 1.15;
+    font-weight: 700;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    padding: 0;
 }
 
 #finalDownloadBtn:hover {
-    transform: scale(1.1);
-    background: #a366ff;
+    transform: translateY(-1px) scale(1.04);
+    filter: brightness(1.05);
+}
+
+#finalDownloadBtn:disabled {
+    opacity: 0.62;
+    cursor: wait;
+    filter: grayscale(0.2);
 }
 
 #finalDownloadBtn span {
-    font-size: 0.6rem;
+    font-size: 0.62rem;
     font-weight: bold;
     display: block;
+    text-align: center;
+}
+
+@media (max-width: 640px) {
+    #finalDownloadBtn {
+        width: 58px;
+        height: 58px;
+        bottom: 10px; /* fallback for browsers without max()/env() support */
+        bottom: max(10px, env(safe-area-inset-bottom));
+        right: 10px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -324,15 +345,6 @@
             <p style="margin: 6px 0 0; font-size: 0.85rem; color: var(--muted);">숫자로 읽는 나의 본질과 인생 타임라인</p>
         </div>
         
-        <button id="finalDownloadBtn" onclick="downloadPDF()" 
-        style="position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; 
-               border-radius: 50%; background: linear-gradient(135deg, #a366ff, #9d50bb); 
-               color: white; border: none; box-shadow: 0 4px 15px rgba(163, 102, 255, 0.4); 
-               cursor: pointer; z-index: 9999; display: none; flex-direction: column; 
-               align-items: center; justify-content: center; line-height: 1.2; padding: 0;">
-    <span style="font-size: 1.2rem;">💾</span>
-    <span style="font-size: 0.6rem; font-weight: bold;">리포트 저장</span>
-</button>
     </div>
 
     <div class="input-box">
@@ -444,6 +456,11 @@
         </div>
     </div>
 </div>
+
+<button id="finalDownloadBtn" onclick="downloadPDF()">
+    <span style="font-size:1.15rem;">💾</span>
+    <span>리포트 저장</span>
+</button>
 
 <script src="./data.js"></script>
 <script src="./logic.js"></script>

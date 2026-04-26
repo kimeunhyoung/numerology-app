@@ -48,15 +48,18 @@ async function checkAuth() {
     const token = storage.getItem("token");
     const loginView = document.getElementById("loginView");
     const container = document.querySelector(".container");
+    const finalDownloadBtn = document.getElementById("finalDownloadBtn");
 
     if (!token) {
         loginView.style.display = "block";
         container.style.display = "none";
+        finalDownloadBtn.style.display = "none";
         return;
     }
 
     loginView.style.display = "none";
     container.style.display = "block";
+    finalDownloadBtn.style.display = "flex";
 
     if (navigator.onLine) {
         try {
