@@ -326,26 +326,31 @@ function startAnalysis() {
     const mn = reduceToSingle(mnS, true);
 
     const sc = getNameScore(name);
-    const su = reduceToSingle(sc.soulSum, true);
-    const ps = reduceToSingle(sc.consSum, true);
-    const dt = reduceToSingle(sc.soulSum + sc.consSum, true);
-    const mt = reduceToSingle(lp + dt, true);
+    let su = null, ps = null, dt = null, mt = null;
+    if (hasNameInput) {
+        su = reduceToSingle(sc.soulSum, true);
+        ps = reduceToSingle(sc.consSum, true);
+        dt = reduceToSingle(sc.soulSum + sc.consSum, true);
+        mt = reduceToSingle(lp + dt, true);
+    }
 
+    // Display: lp and mn always; other core numbers only when name is provided
     document.getElementById("v-lp").innerText = `${lp}(${lpS})`;
-    document.getElementById("v-dt").innerText = `${dt}`;
-    document.getElementById("v-su").innerText = `${su}`;
-    document.getElementById("v-ps").innerText = `${ps}`;
-    document.getElementById("v-mt").innerText = `${mt}`;
     document.getElementById("v-mn").innerText = `${mn}(${mnS})`;
+    document.getElementById("v-su").innerText = hasNameInput ? `${su}` : "";
+    document.getElementById("v-ps").innerText = hasNameInput ? `${ps}` : "";
+    document.getElementById("v-dt").innerText = hasNameInput ? `${dt}` : "";
+    document.getElementById("v-mt").innerText = hasNameInput ? `${mt}` : "";
 
-    setHtml("coreDescArea", [
+    const coreItems = [
         { k: "인생여정수", v: lp },
-        { k: "문 넘버", v: mn },
-        { k: "혼의 수", v: su },
-        { k: "성격수", v: ps },
-        { k: "완성수", v: mt },
-        { k: "운명수", v: dt }
-    ].map(i => {
+        { k: "문 넘버", v: mn }
+    ];
+    if (hasNameInput) {
+        coreItems.push({ k: "혼의 수", v: su }, { k: "성격수", v: ps }, { k: "완성수", v: mt }, { k: "운명수", v: dt });
+    }
+
+    setHtml("coreDescArea", coreItems.map(i => {
         const desc = i.k === "문 넘버" ? (MOON_MAP[i.v] || "") : (DEEP_MAP[i.v] || "");
         return `
             <div class="accordion">
