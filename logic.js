@@ -295,7 +295,9 @@ function renderTimeline(mr_r, dr_r, py, curYear, curM) {
 }
 
 function startAnalysis() {
-    const name = document.getElementById("inputName").value.trim() || "무명";
+    const inputName = document.getElementById("inputName").value.trim();
+    const name = inputName || "무명";
+    const hasNameInput = inputName.length > 0;
     const dateStr = document.getElementById("inputBirth").value;
     if (!dateStr) {
         showToast("생년월일을 먼저 선택해주세요.", "warn");
@@ -390,7 +392,7 @@ function startAnalysis() {
 
     const birthOnlyDigits = new Set((String(y) + String(m) + String(d)).split("").map(Number).filter(n => n !== 0));
     const karmicLessons = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(n => !birthOnlyDigits.has(n));
-    const nameDigits = sc.allDigits;
+    const nameDigits = hasNameInput ? sc.allDigits : new Set();
     const compensated = karmicLessons.filter(n => nameDigits.has(n));
     const remaining = karmicLessons.filter(n => !nameDigits.has(n));
 
@@ -399,8 +401,11 @@ function startAnalysis() {
         missingHtml = `<p style="font-size:0.85rem;color:var(--muted);">${INTERPRETATION_TEXTS.growthMapAllActive}</p>`;
     } else {
         missingHtml += `<div style="margin-bottom:18px;"><span style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:10px;">📌 출생 데이터(생년월일)에 나타나지 않는 숫자는 선천적으로 덜 활성화된 성향 영역입니다. 이름(후천적 환경)이 어느 정도 보완하고 있는지 함께 분석합니다.</span>${karmicLessons.map(n => `<div style="margin-bottom:12px;padding:12px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid #333;"><strong style="color:var(--teal);font-size:0.9rem;">● ${n}번 ${GROWTH_DATA[n].t}</strong><span style="font-size:0.85rem;color:#ccc;display:block;margin-top:4px;">${GROWTH_DATA[n].d}</span></div>`).join("")}</div>`;
-        if (compensated.length > 0) {
+        if (hasNameInput && compensated.length > 0) {
             missingHtml += `<div style="margin-bottom:18px;padding:15px;background:rgba(46,213,115,0.05);border-radius:12px;border:1px solid rgba(46,213,115,0.3);"><span style="color:var(--teal);font-size:0.85rem;font-weight:bold;display:block;margin-bottom:8px;">✅ 후천적으로 보완된 역량</span><span style="font-size:0.78rem;color:var(--muted);display:block;margin-bottom:10px;">이름(언어 환경)이 자연스럽게 이 에너지를 채워주고 있습니다.</span>${compensated.map(n => `<div style="margin-bottom:6px;"><strong style="color:var(--teal);font-size:0.88rem;">● ${n}번 ${GROWTH_DATA[n].t} ✅</strong></div>`).join("")}</div>`;
+        }
+        if (!hasNameInput) {
+            missingHtml += `<div style="margin-bottom:18px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.2);border-radius:10px;"><span style="font-size:0.78rem;color:var(--muted);">이름 미입력 상태라 후천 보완 역량 분석은 제외되었습니다.</span></div>`;
         }
         if (remaining.length > 0) {
             missingHtml += `<div style="padding:15px;background:rgba(255,123,114,0.05);border-radius:12px;border:1px solid rgba(255,123,114,0.3);"><span style="color:var(--red);font-size:0.85rem;font-weight:bold;display:block;margin-bottom:8px;">🎯 집중 개발이 필요한 역량</span><span style="font-size:0.78rem;color:var(--muted);display:block;margin-bottom:10px;">의식적인 행동 실천으로 채워나가야 할 성장 영역입니다.</span>${remaining.map(n => `<div style="margin-bottom:12px;"><strong style="color:var(--red);font-size:0.88rem;">● ${n}번 ${GROWTH_DATA[n].t}</strong><span style="font-size:0.83rem;color:#ccc;display:block;margin-top:3px;">${GROWTH_DATA[n].d}</span><span style="font-size:0.78rem;color:var(--gold);display:block;margin-top:4px;">📌 실천 제안: ${GROWTH_DATA[n].action}</span></div>`).join("")}</div>`;
