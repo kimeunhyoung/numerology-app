@@ -391,7 +391,10 @@ function startAnalysis() {
     setHtml("cycleArea", cyData.map((c, i) => `<div class="cycle-block"><div class="cycle-header-acc"><span>제${i + 1}단계: ${TITLE_MAP[c.p] || ""}</span></div><div class="cycle-content-acc"><span class="cycle-label-p">환경(절정) ${c.p}번</span><span class="cycle-text">${P_DETAIL[c.p] || ""}</span><span class="cycle-label-c">과제(도전) ${c.c}번</span><span class="cycle-text">${C_DETAIL[c.c] || ""}</span></div></div>`).join(""));
 
     const birthOnlyDigits = new Set((String(y) + String(m) + String(d)).split("").map(Number).filter(n => n !== 0));
-    const karmicLessons = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(n => !birthOnlyDigits.has(n));
+    const coreDigits = [lp, mn];
+    const reducedCoreDigits = coreDigits.map(n => (n === 11 ? 2 : n === 22 ? 4 : n === 33 ? 6 : n));
+    const innateActiveDigits = new Set([...birthOnlyDigits, ...coreDigits, ...reducedCoreDigits].filter(n => n >= 1 && n <= 9));
+    const karmicLessons = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(n => !innateActiveDigits.has(n));
     const nameDigits = hasNameInput ? sc.allDigits : new Set();
     const compensated = karmicLessons.filter(n => nameDigits.has(n));
     const remaining = karmicLessons.filter(n => !nameDigits.has(n));
@@ -400,7 +403,7 @@ function startAnalysis() {
     if (karmicLessons.length === 0) {
         missingHtml = `<p style="font-size:0.85rem;color:var(--muted);">${INTERPRETATION_TEXTS.growthMapAllActive}</p>`;
     } else {
-        missingHtml += `<div style="margin-bottom:18px;"><span style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:10px;">📌 출생 데이터(생년월일)에 나타나지 않는 숫자는 선천적으로 덜 활성화된 성향 영역입니다. 이름(후천적 환경)이 어느 정도 보완하고 있는지 함께 분석합니다.</span>${karmicLessons.map(n => `<div style="margin-bottom:12px;padding:12px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid #333;"><strong style="color:var(--teal);font-size:0.9rem;">● ${n}번 ${GROWTH_DATA[n].t}</strong><span style="font-size:0.85rem;color:#ccc;display:block;margin-top:4px;">${GROWTH_DATA[n].d}</span></div>`).join("")}</div>`;
+        missingHtml += `<div style="margin-bottom:18px;"><span style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:10px;">📌 선천 기준은 생년월일 원본 숫자 + 핵심수(인생여정수/문넘버)를 함께 반영합니다. 마스터수는 축약값도 함께 반영합니다(11→2, 22→4, 33→6). 여기에 나타나지 않는 숫자는 상대적으로 덜 활성화된 성향 영역이며, 이름(후천적 환경)이 어느 정도 보완하는지 함께 분석합니다.</span>${karmicLessons.map(n => `<div style="margin-bottom:12px;padding:12px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid #333;"><strong style="color:var(--teal);font-size:0.9rem;">● ${n}번 ${GROWTH_DATA[n].t}</strong><span style="font-size:0.85rem;color:#ccc;display:block;margin-top:4px;">${GROWTH_DATA[n].d}</span></div>`).join("")}</div>`;
         if (hasNameInput && compensated.length > 0) {
             missingHtml += `<div style="margin-bottom:18px;padding:15px;background:rgba(46,213,115,0.05);border-radius:12px;border:1px solid rgba(46,213,115,0.3);"><span style="color:var(--teal);font-size:0.85rem;font-weight:bold;display:block;margin-bottom:8px;">✅ 후천적으로 보완된 역량</span><span style="font-size:0.78rem;color:var(--muted);display:block;margin-bottom:10px;">이름(언어 환경)이 자연스럽게 이 에너지를 채워주고 있습니다.</span>${compensated.map(n => `<div style="margin-bottom:6px;"><strong style="color:var(--teal);font-size:0.88rem;">● ${n}번 ${GROWTH_DATA[n].t} ✅</strong></div>`).join("")}</div>`;
         }
