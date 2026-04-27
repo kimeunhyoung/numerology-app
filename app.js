@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const path = require("path");
 const { saveInviteKey, isInviteKeyValid, invalidateInviteKey } = require("./invite-store");
-const { resolveAppBaseUrl } = require("./resolve-base-url");
+const { publicOriginFromRequest } = require("./resolve-base-url");
 
 const app = express();
 app.use(express.json());
@@ -13,15 +13,13 @@ app.use(express.static(path.join(__dirname), { index: false }));
 const SECRET = process.env.JWT_SECRET || "dev-change-me-secret";
 const CURRENT_PASSWORD = process.env.APP_PASSWORD || "888";
 
-const APP_BASE_URL = resolveAppBaseUrl();
-
 // 1. QR 생성 페이지 (선생님 전용)
 app.get("/create-invite", async (req, res) => {
     try {
         const inviteKey = Math.random().toString(36).substring(2, 15);
         await saveInviteKey(inviteKey);
 
-        const inviteLink = `${APP_BASE_URL}/enter?key=${inviteKey}`;
+        const inviteLink = `${publicOriginFromRequest(req)}/enter?key=${inviteKey}`;
 
         res.send(`
         <!DOCTYPE html>
