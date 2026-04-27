@@ -21,30 +21,11 @@ app.get("/create-invite", async (req, res) => {
         res.set("Cache-Control", "private, no-store, must-revalidate");
         const inviteKeyJson = JSON.stringify(inviteKey);
 
-        const explicitInviteBase = (process.env.PUBLIC_INVITE_BASE_URL || "")
-            .trim()
-            .replace(/\/$/, "");
-        let serverInviteBase = "";
-        if (explicitInviteBase && !/onrender\.com/i.test(explicitInviteBase)) {
-            serverInviteBase = explicitInviteBase.startsWith("http")
-                ? explicitInviteBase
-                : `https://${explicitInviteBase}`;
-        } else if (process.env.VERCEL === "1" && process.env.VERCEL_URL) {
-            const host = String(process.env.VERCEL_URL).replace(/^https?:\/\//, "");
-            serverInviteBase = `https://${host}`;
-        } else if (process.env.VERCEL === "1" && !serverInviteBase) {
-            const proto = String(req.get("x-forwarded-proto") || "https").split(",")[0].trim() || "https";
-            const host = String(req.get("x-forwarded-host") || req.get("host") || "")
-                .split(",")[0]
-                .trim();
-            if (host && !/onrender\.com$/i.test(host)) {
-                serverInviteBase = `${proto}://${host}`;
-            }
-        }
-        const serverInviteBaseJson = JSON.stringify(serverInviteBase);
+        res.set("Pragma", "no-cache");
 
         res.send(`
         <!DOCTYPE html>
+        <!-- invite-qr: client-origin-v2 — QR주소는 브라우저 주소창 기준(window.location.origin). 배포 확인용. -->
         <html lang="ko">
         <head>
             <meta charset="UTF-8">
@@ -82,25 +63,9 @@ app.get("/create-invite", async (req, res) => {
             <script>
                 (function () {
                     var key = ${inviteKeyJson};
-                    var fromServer = ${serverInviteBaseJson};
-                    var pageOrigin = window.location.origin;
-                    var pageHost = "";
-                    try {
-                        pageHost = new URL(pageOrigin).hostname || "";
-                    } catch (e) {}
-                    var onPageOnRender = /onrender\.com$/i.test(pageHost);
-                    var base;
-                    if (!onPageOnRender) {
-                        base = pageOrigin;
-                    } else if (fromServer && fromServer.length > 0) {
-                        base = fromServer;
-                    } else {
-                        base = pageOrigin;
-                    }
+                    var base = window.location.origin;
                     var inviteLink =
-                        (base.endsWith("/") ? base.slice(0, -1) : base) +
-                        "/enter?key=" +
-                        encodeURIComponent(key);
+                        base + "/enter?key=" + encodeURIComponent(key);
                     document.getElementById("inviteLinkText").textContent = inviteLink;
                     new QRCode(document.getElementById("qrcode"), {
                         text: inviteLink,
