@@ -21,6 +21,20 @@ app.get("/create-invite", async (req, res) => {
         res.set("Cache-Control", "private, no-store, must-revalidate");
         const inviteKeyJson = JSON.stringify(inviteKey);
 
+        const explicitInviteBase = (process.env.PUBLIC_INVITE_BASE_URL || "")
+            .trim()
+            .replace(/\/$/, "");
+        let serverInviteBase = "";
+        if (explicitInviteBase && !/onrender\.com/i.test(explicitInviteBase)) {
+            serverInviteBase = explicitInviteBase.startsWith("http")
+                ? explicitInviteBase
+                : `https://${explicitInviteBase}`;
+        } else if (process.env.VERCEL === "1" && process.env.VERCEL_URL) {
+            const host = String(process.env.VERCEL_URL).replace(/^https?:\/\//, "");
+            serverInviteBase = `https://${host}`;
+        }
+        const serverInviteBaseJson = JSON.stringify(serverInviteBase);
+
         res.send(`
         <!DOCTYPE html>
         <html lang="ko">
@@ -60,7 +74,15 @@ app.get("/create-invite", async (req, res) => {
             <script>
                 (function () {
                     var key = ${inviteKeyJson};
-                    var inviteLink = window.location.origin + "/enter?key=" + encodeURIComponent(key);
+                    var fromServer = ${serverInviteBaseJson};
+                    var base =
+                        fromServer && fromServer.length > 0
+                            ? fromServer
+                            : window.location.origin;
+                    var inviteLink =
+                        (base.endsWith("/") ? base.slice(0, -1) : base) +
+                        "/enter?key=" +
+                        encodeURIComponent(key);
                     document.getElementById("inviteLinkText").textContent = inviteLink;
                     new QRCode(document.getElementById("qrcode"), {
                         text: inviteLink,
