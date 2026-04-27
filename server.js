@@ -1,6 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const crypto = require("crypto");
 const path = require("path");
 require("dotenv").config();
 const app = express();
@@ -10,6 +11,11 @@ app.use(express.static(path.join(__dirname)));
 
 const SECRET = process.env.JWT_SECRET || "dev-change-me-secret";
 let CURRENT_PASSWORD = process.env.APP_PASSWORD || "888";
+
+/** 비밀번호가 바뀌면 값이 달라져 기존 JWT 전부 무효 (온라인일 때 check-auth에서 차단) */
+function authEpoch() {
+    return crypto.createHash("sha256").update(String(CURRENT_PASSWORD)).digest("hex").slice(0, 16);
+}
 const APP_BASE_URL = process.env.APP_BASE_URL || "https://numerology-app-w6rq.onrender.com";
 let oneTimeKeys = new Map();
 
@@ -160,7 +166,7 @@ app.get("/", (req, res) => {
 app.post("/login", (req, res) => {
     const { password } = req.body;
     if (password === CURRENT_PASSWORD) {
-        const token = jwt.sign({ auth: true }, SECRET, { expiresIn: "30d" });
+        const token = jwt.sign({ auth: true, ae: authEpoch() }, SECRET, { expiresIn: "30d" });
         return res.json({ token });
     }
     res.status(401).send("Unauthorized");
@@ -171,9 +177,11 @@ app.get("/check-auth", (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).send("Unauthorized");
     try {
-        jwt.verify(token, SECRET);
-        // 유효하면 새 토큰 발급 (30일 자동 연장)
-        const newToken = jwt.sign({ auth: true }, SECRET, { expiresIn: "30d" });
+        const decoded = jwt.verify(token, SECRET);
+        if (decoded.ae !== authEpoch()) {
+            return res.status(401).send("Unauthorized");
+        }
+        const newToken = jwt.sign({ auth: true, ae: authEpoch() }, SECRET, { expiresIn: "30d" });
         res.json({ valid: true, token: newToken });
     } catch (e) {
         res.status(401).send("Unauthorized");
