@@ -566,9 +566,16 @@ let deferredPrompt;
 window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredPrompt = e;
+    const chromeLine = document.getElementById("installChromeLine");
+    if (chromeLine) chromeLine.style.display = "block";
+    const hintMain = document.getElementById("installHintMain");
+    if (hintMain) {
+        hintMain.innerHTML =
+            "지금은 화면 <b>맨 위 보라색 바</b>를 눌러 설치하세요. (안 보이면 아래 안드로이드·아이폰 방법)";
+    }
     const installBanner = document.createElement("div");
     installBanner.style = "position:fixed; top:0; left:0; width:100%; background:var(--accent); color:white; padding:15px; text-align:center; z-index:10000; cursor:pointer; font-weight:bold;";
-    installBanner.innerHTML = "✨ 편리한 이용을 위해 '라이프코드 앱'으로 저장하기 (클릭)";
+    installBanner.innerHTML = "✨ 여기를 눌러 '라이프코드 앱'으로 저장하기 (클릭)";
     document.body.appendChild(installBanner);
     installBanner.addEventListener("click", () => {
         deferredPrompt.prompt();
