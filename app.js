@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const path = require("path");
 const { saveInviteKey, isInviteKeyValid, invalidateInviteKey } = require("./invite-store");
-const { publicOriginFromRequest } = require("./resolve-base-url");
 
 const app = express();
 app.use(express.json());
@@ -19,7 +18,8 @@ app.get("/create-invite", async (req, res) => {
         const inviteKey = Math.random().toString(36).substring(2, 15);
         await saveInviteKey(inviteKey);
 
-        const inviteLink = `${publicOriginFromRequest(req)}/enter?key=${inviteKey}`;
+        res.set("Cache-Control", "private, no-store, must-revalidate");
+        const inviteKeyJson = JSON.stringify(inviteKey);
 
         res.send(`
         <!DOCTYPE html>
@@ -54,17 +54,22 @@ app.get("/create-invite", async (req, res) => {
                     <div id="qrcode"></div>
                 </div>
                 <div class="timer" id="timer">⏳ 유효시간: 02:00:00</div>
-                <div class="link">${inviteLink}</div>
+                <div class="link" id="inviteLinkText"></div>
                 <button class="btn" onclick="location.href='/create-invite'">🔄 새 QR 생성</button>
             </div>
             <script>
-                new QRCode(document.getElementById("qrcode"), {
-                    text: "${inviteLink}",
-                    width: 200,
-                    height: 200,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                });
+                (function () {
+                    var key = ${inviteKeyJson};
+                    var inviteLink = window.location.origin + "/enter?key=" + encodeURIComponent(key);
+                    document.getElementById("inviteLinkText").textContent = inviteLink;
+                    new QRCode(document.getElementById("qrcode"), {
+                        text: inviteLink,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                    });
+                })();
 
                 let remain = 2 * 60 * 60;
                 function updateTimer() {
