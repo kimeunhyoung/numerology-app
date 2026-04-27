@@ -32,6 +32,14 @@ app.get("/create-invite", async (req, res) => {
         } else if (process.env.VERCEL === "1" && process.env.VERCEL_URL) {
             const host = String(process.env.VERCEL_URL).replace(/^https?:\/\//, "");
             serverInviteBase = `https://${host}`;
+        } else if (process.env.VERCEL === "1" && !serverInviteBase) {
+            const proto = String(req.get("x-forwarded-proto") || "https").split(",")[0].trim() || "https";
+            const host = String(req.get("x-forwarded-host") || req.get("host") || "")
+                .split(",")[0]
+                .trim();
+            if (host && !/onrender\.com$/i.test(host)) {
+                serverInviteBase = `${proto}://${host}`;
+            }
         }
         const serverInviteBaseJson = JSON.stringify(serverInviteBase);
 
@@ -75,10 +83,20 @@ app.get("/create-invite", async (req, res) => {
                 (function () {
                     var key = ${inviteKeyJson};
                     var fromServer = ${serverInviteBaseJson};
-                    var base =
-                        fromServer && fromServer.length > 0
-                            ? fromServer
-                            : window.location.origin;
+                    var pageOrigin = window.location.origin;
+                    var pageHost = "";
+                    try {
+                        pageHost = new URL(pageOrigin).hostname || "";
+                    } catch (e) {}
+                    var onPageOnRender = /onrender\.com$/i.test(pageHost);
+                    var base;
+                    if (!onPageOnRender) {
+                        base = pageOrigin;
+                    } else if (fromServer && fromServer.length > 0) {
+                        base = fromServer;
+                    } else {
+                        base = pageOrigin;
+                    }
                     var inviteLink =
                         (base.endsWith("/") ? base.slice(0, -1) : base) +
                         "/enter?key=" +
